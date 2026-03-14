@@ -77,6 +77,7 @@
             <div class="input-type-tabs">
               <button type="button" class="input-type-tab active" id="tab-file" onclick="switchInputType('file')">音声ファイル</button>
               <button type="button" class="input-type-tab" id="tab-link" onclick="switchInputType('link')">Xスペースリンク</button>
+              <button type="button" class="input-type-tab" id="tab-spotify" onclick="switchInputType('spotify')">Spotify</button>
             </div>
             <div id="section-file">
               <div class="form-group">
@@ -99,6 +100,13 @@
                 <label for="input-space-url">XスペースURL<span class="required">*</span></label>
                 <input type="url" id="input-space-url" placeholder="https://x.com/i/spaces/…">
                 <div class="form-hint">例：https://x.com/i/spaces/1RKZzjwYldvKB</div>
+              </div>
+            </div>
+            <div id="section-spotify" style="display:none;">
+              <div class="form-group">
+                <label for="input-spotify-url">SpotifyエピソードURL<span class="required">*</span></label>
+                <input type="url" id="input-spotify-url" placeholder="https://open.spotify.com/episode/…">
+                <div class="form-hint">例：https://open.spotify.com/episode/4rOoJ6Egrf8K2IrywzwOMk</div>
               </div>
             </div>
             <div class="progress-wrap" id="progress-wrap">
@@ -259,6 +267,11 @@
         <label for="edit-space-url">XスペースURL（任意）</label>
         <input type="url" id="edit-space-url" placeholder="https://x.com/i/spaces/…">
         <div class="form-hint">入力するとカードにリンクボタンが表示されます</div>
+      </div>
+      <div class="form-group">
+        <label for="edit-spotify-url">SpotifyエピソードURL（任意）</label>
+        <input type="url" id="edit-spotify-url" placeholder="https://open.spotify.com/episode/…">
+        <div class="form-hint">入力するとカードにSpotifyプレイヤーが表示されます</div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" id="modal-cancel">キャンセル</button>

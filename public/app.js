@@ -37,9 +37,15 @@ function renderEpisode(episode, index, total) {
     <h3 class="episode-title">${escHtml(episode.title)}</h3>
     ${episode.description ? `<div class="episode-description">${escHtml(episode.description)}</div>` : ''}
     <div class="episode-player">
-      ${episode.spaceUrl
-        ? `<a class="space-link-btn" href="${escHtml(episode.spaceUrl)}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xスペースで聴く</a>`
-        : `<audio controls preload="none"><source src="/data/${encodeURIComponent(episode.filename)}" type="${getMimeType(episode.filename)}"></audio>`}
+      ${episode.spotifyUrl
+        ? `<iframe
+            src="${escHtml(toSpotifyEmbedUrl(episode.spotifyUrl))}"
+            width="100%" height="152" frameborder="0"
+            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            loading="lazy" style="border-radius:10px;"></iframe>`
+        : episode.spaceUrl
+          ? `<a class="space-link-btn" href="${escHtml(episode.spaceUrl)}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xスペースで聴く</a>`
+          : `<audio controls preload="none"><source src="/data/${encodeURIComponent(episode.filename)}" type="${getMimeType(episode.filename)}"></audio>`}
     </div>
   `;
   if (isAdmin) {
@@ -121,6 +127,11 @@ async function loadEpisodes() {
 }
 
 loadEpisodes();
+
+function toSpotifyEmbedUrl(url) {
+  // https://open.spotify.com/episode/ID → https://open.spotify.com/embed/episode/ID
+  return url.replace('open.spotify.com/', 'open.spotify.com/embed/').split('?')[0];
+}
 
 function xAccountUrl(val) {
   if (!val) return '#';

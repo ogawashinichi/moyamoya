@@ -281,9 +281,30 @@ app.delete('/api/episodes/:id', requireAuth, (req, res) => {
   }
 });
 
+app.post('/api/episodes/spotify', requireAuth, (req, res) => {
+  try {
+    const { title, date, description, spotifyUrl } = req.body;
+    if (!title || !date || !spotifyUrl) return res.status(400).json({ error: 'タイトル、日付、SpotifyURLは必須です' });
+    let episodes = [];
+    try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
+    const episode = {
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      title: title.trim(), date, spotifyUrl: spotifyUrl.trim(),
+      description: (description || '').trim(), createdAt: new Date().toISOString()
+    };
+    episodes.push(episode);
+    episodes.sort((a, b) => b.date.localeCompare(a.date));
+    fs.writeFileSync(EPISODES_FILE, JSON.stringify(episodes, null, 2));
+    console.log(`  新規登録（Spotify）: ${episode.date} "${episode.title}"`);
+    res.json(episode);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.put('/api/episodes/:id', requireAuth, (req, res) => {
   try {
-    const { title, date, description, spaceUrl } = req.body;
+    const { title, date, description, spaceUrl, spotifyUrl } = req.body;
     if (!title || !date) return res.status(400).json({ error: 'タイトルと日付は必須です' });
     let episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8'));
     const idx = episodes.findIndex(e => e.id === req.params.id);
@@ -291,7 +312,8 @@ app.put('/api/episodes/:id', requireAuth, (req, res) => {
     episodes[idx] = {
       ...episodes[idx],
       title: title.trim(), date, description: (description || '').trim(),
-      ...(spaceUrl !== undefined ? { spaceUrl: spaceUrl.trim() } : {})
+      ...(spaceUrl !== undefined ? { spaceUrl: spaceUrl.trim() } : {}),
+      ...(spotifyUrl !== undefined ? { spotifyUrl: spotifyUrl.trim() } : {})
     };
     episodes.sort((a, b) => b.date.localeCompare(a.date));
     fs.writeFileSync(EPISODES_FILE, JSON.stringify(episodes, null, 2));
