@@ -200,3 +200,29 @@ async function loadSettings() {
 }
 
 loadSettings();
+
+// ===== Voice Form =====
+async function submitVoice(e) {
+  e.preventDefault();
+  const name    = document.getElementById('voice-name')?.value.trim() || '';
+  const message = document.getElementById('voice-message')?.value.trim() || '';
+  if (!message) return;
+  const btn = document.getElementById('voice-submit');
+  btn.disabled = true;
+  btn.textContent = '送信中…';
+  try {
+    const res = await fetch('/api/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, message })
+    });
+    const data = await res.json();
+    if (!res.ok) { alert(data.error || '送信に失敗しました'); btn.disabled = false; btn.textContent = '送信する'; return; }
+    document.getElementById('voice-form').style.display = 'none';
+    document.getElementById('voice-thanks').style.display = 'block';
+  } catch {
+    alert('送信に失敗しました。もう一度お試しください。');
+    btn.disabled = false;
+    btn.textContent = '送信する';
+  }
+}

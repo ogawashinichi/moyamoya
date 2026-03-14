@@ -331,9 +331,133 @@ app.put('/api/episodes/:id', requireAuth, (req, res) => {
   }
 });
 
+
+
+// ===== Messages API =====
+const MESSAGES_FILE = path.join(STORAGE_DIR, 'messages.json');
+
+function initMessages() {
+  if (!fs.existsSync(MESSAGES_FILE)) {
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify([], null, 2));
+    console.log('  messages.json \u3092\u4f5c\u6210\u3057\u307e\u3057\u305f');
+  }
+}
+
+app.post('/api/messages', (req, res) => {
+  try {
+    const { name, message } = req.body;
+    if (!message || !message.trim()) return res.status(400).json({ error: '\u30e1\u30c3\u30bb\u30fc\u30b8\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044' });
+    if (message.trim().length > 1000) return res.status(400).json({ error: '\u30e1\u30c3\u30bb\u30fc\u30b8\u306f1000\u6587\u5b57\u4ee5\u5185\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044' });
+    const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    const entry = {
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      name: (name || '').trim().slice(0, 50) || '\u533f\u540d',
+      message: message.trim(),
+      createdAt: new Date().toISOString(),
+      read: false
+    };
+    messages.unshift(entry);
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/messages', requireAuth, (req, res) => {
+  try { res.json(JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'))); } catch { res.json([]); }
+});
+
+app.patch('/api/messages/:id/read', requireAuth, (req, res) => {
+  try {
+    const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    const idx = messages.findIndex(m => m.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: '\u30e1\u30c3\u30bb\u30fc\u30b8\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093' });
+    messages[idx].read = true;
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/messages/:id', requireAuth, (req, res) => {
+  try {
+    let messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    messages = messages.filter(m => m.id !== req.params.id);
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+
+// ===== Messages API =====
+const MESSAGES_FILE = path.join(STORAGE_DIR, 'messages.json');
+
+function initMessages() {
+  if (!fs.existsSync(MESSAGES_FILE)) {
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify([], null, 2));
+    console.log('  messages.json \u3092\u4f5c\u6210\u3057\u307e\u3057\u305f');
+  }
+}
+
+app.post('/api/messages', (req, res) => {
+  try {
+    const { name, message } = req.body;
+    if (!message || !message.trim()) return res.status(400).json({ error: '\u30e1\u30c3\u30bb\u30fc\u30b8\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044' });
+    if (message.trim().length > 1000) return res.status(400).json({ error: '\u30e1\u30c3\u30bb\u30fc\u30b8\u306f1000\u6587\u5b57\u4ee5\u5185\u3067\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044' });
+    const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    const entry = {
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      name: (name || '').trim().slice(0, 50) || '\u533f\u540d',
+      message: message.trim(),
+      createdAt: new Date().toISOString(),
+      read: false
+    };
+    messages.unshift(entry);
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get('/api/messages', requireAuth, (req, res) => {
+  try { res.json(JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'))); } catch { res.json([]); }
+});
+
+app.patch('/api/messages/:id/read', requireAuth, (req, res) => {
+  try {
+    const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    const idx = messages.findIndex(m => m.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: '\u30e1\u30c3\u30bb\u30fc\u30b8\u304c\u898b\u3064\u304b\u308a\u307e\u305b\u3093' });
+    messages[idx].read = true;
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.delete('/api/messages/:id', requireAuth, (req, res) => {
+  try {
+    let messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    messages = messages.filter(m => m.id !== req.params.id);
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 initSettings();
 initProfiles();
 initEpisodes();
+initMessages();
+initMessages();
 app.listen(PORT, () => {
   console.log('');
   console.log('  新聞記者のもやもや話 アーカイブ');

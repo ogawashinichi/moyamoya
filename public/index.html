@@ -67,6 +67,34 @@
       </div>
     </section>
 
+
+    <section class="voice-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="section-title-bar"></span>感想・話してほしいテーマ
+          </h2>
+        </div>
+        <div class="voice-form-wrap">
+          <p class="voice-form-lead">聴いた感想や、次回取り上げてほしいテーマをお寄せください。</p>
+          <form id="voice-form" class="voice-form" onsubmit="submitVoice(event)">
+            <div class="form-group">
+              <label for="voice-name">お名前（任意）</label>
+              <input type="text" id="voice-name" maxlength="50" placeholder="匿名可">
+            </div>
+            <div class="form-group">
+              <label for="voice-message">メッセージ<span class="required">*</span></label>
+              <textarea id="voice-message" rows="4" maxlength="1000" placeholder="感想やリクエストをお寄せください（1000文字以内）"></textarea>
+            </div>
+            <button type="submit" class="btn-submit" id="voice-submit">送信する</button>
+          </form>
+          <div id="voice-thanks" class="voice-thanks" style="display:none;">
+            ✅ 送信しました！ご意見ありがとうございます。
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="episodes-section">
       <div class="container">
         <div class="section-header">
