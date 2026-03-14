@@ -91,7 +91,7 @@ node server.js
 | `ADMIN_PASSWORD` | 管理者パスワード |
 | `SESSION_SECRET` | ランダムな長い文字列 |
 | `NODE_ENV` | `production` |
-| `STORAGE_DIR` | `/opt/render/project/storage`（Persistent Disk使用時） |
+| `STORAGE_DIR` | `/opt/render/storage`（Persistent Disk使用時） |
 
 ### 3. Persistent Disk を追加（データ永続化）
 
@@ -103,10 +103,10 @@ node server.js
 | 項目 | 値 |
 |------|-----|
 | Name | `storage` |
-| Mount Path | `/opt/render/project/storage` |
+| Mount Path | `/opt/render/storage` |
 | Size | `1 GB` |
 
-3. Environment Variables に `STORAGE_DIR=/opt/render/project/storage` を追加
+3. Environment Variables に `STORAGE_DIR=/opt/render/storage` を追加
 
 > 💡 Persistent Disk を使わない場合、デプロイのたびにデータ（エピソード・メッセージ等）がリセットされます。
 
