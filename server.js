@@ -67,31 +67,24 @@ app.post('/api/auth/logout', (req, res) => {
 });
 
 // ===== Image Upload API =====
-const imageStorage = multer.diskStorage({
-  destination: path.join(__dirname, 'public', 'images'),
-  filename: (req, file, cb) => {
-    const name = (req.body.name || 'speaker').replace(/[^a-zA-Z0-9_-]/g, '_');
-    const ext = path.extname(file.originalname) || '.jpg';
-    cb(null, `${name}${ext}`);
-  }
-});
-const imageUpload = multer({ storage: imageStorage, limits: { fileSize: 10 * 1024 * 1024 } });
+const imageUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
 app.post('/api/upload-image', requireAuth, imageUpload.single('image'), (req, res) => {
   if (!req.file) return res.status(400).json({ error: 'ファイルがありません' });
-  const url = `/images/${req.file.filename}`;
-  // Update profile photo field in profiles.json
+  // Base64に変換してprofiles.jsonに直接保存（ファイルシステム依存を排除）
+  const mime = req.file.mimetype || 'image/jpeg';
+  const dataUrl = `data:${mime};base64,${req.file.buffer.toString('base64')}`;
   const profileId = req.body.profileId;
   if (profileId && fs.existsSync(PROFILES_FILE)) {
     try {
       const profiles = JSON.parse(fs.readFileSync(PROFILES_FILE, 'utf-8'));
       const idx = profiles.findIndex(p => p.id === profileId);
       if (idx !== -1) {
-        profiles[idx].photo = url;
+        profiles[idx].photo = dataUrl;
         fs.writeFileSync(PROFILES_FILE, JSON.stringify(profiles, null, 2));
       }
     } catch {}
   }
-  res.json({ url });
+  res.json({ url: dataUrl });
 });
 
 // ===== Settings API =====
