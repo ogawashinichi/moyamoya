@@ -146,7 +146,7 @@ app.get('/api/profiles', (req, res) => {
 
 app.put('/api/profiles/:id', requireAuth, (req, res) => {
   try {
-    const { name, kana, role, bio } = req.body;
+    const { name, kana, role, bio, xAccount, website } = req.body;
     if (!name || !role) return res.status(400).json({ error: '名前と役割ラベルは必須です' });
     let profiles = JSON.parse(fs.readFileSync(PROFILES_FILE, 'utf-8'));
     const idx = profiles.findIndex(p => p.id === req.params.id);
@@ -156,7 +156,9 @@ app.put('/api/profiles/:id', requireAuth, (req, res) => {
       name: name.trim(),
       kana: (kana || '').trim(),
       role: role.trim(),
-      bio: (bio || '').trim()
+      bio: (bio || '').trim(),
+      xAccount: (xAccount || '').trim(),
+      website: (website || '').trim()
     };
     fs.writeFileSync(PROFILES_FILE, JSON.stringify(profiles, null, 2));
     res.json(profiles[idx]);

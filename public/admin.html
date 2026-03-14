@@ -160,6 +160,15 @@
               <label for="profile-bio-reporter">プロフィール文</label>
               <textarea id="profile-bio-reporter" rows="6" placeholder="プロフィール文を入力してください"></textarea>
             </div>
+            <div class="form-group">
+              <label for="profile-x-reporter">X アカウント</label>
+              <input type="text" id="profile-x-reporter" maxlength="100" placeholder="例：@username">
+              <div class="form-hint">@ から始めるか、https://x.com/username の形式で入力</div>
+            </div>
+            <div class="form-group">
+              <label for="profile-website-reporter">ウェブサイト</label>
+              <input type="url" id="profile-website-reporter" maxlength="200" placeholder="https://example.com">
+            </div>
             <button class="btn-submit" onclick="saveProfile('reporter')">保存する</button>
           </div>
 
@@ -199,6 +208,15 @@
             <div class="form-group">
               <label for="profile-bio-desk">プロフィール文</label>
               <textarea id="profile-bio-desk" rows="6" placeholder="プロフィール文を入力してください"></textarea>
+            </div>
+            <div class="form-group">
+              <label for="profile-x-desk">X アカウント</label>
+              <input type="text" id="profile-x-desk" maxlength="100" placeholder="例：@username">
+              <div class="form-hint">@ から始めるか、https://x.com/username の形式で入力</div>
+            </div>
+            <div class="form-group">
+              <label for="profile-website-desk">ウェブサイト</label>
+              <input type="url" id="profile-website-desk" maxlength="200" placeholder="https://example.com">
             </div>
             <button class="btn-submit" onclick="saveProfile('desk')">保存する</button>
           </div>

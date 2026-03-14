@@ -258,14 +258,18 @@ async function loadProfiles() {
     if (!res.ok) return;
     const profiles = await res.json();
     for (const p of profiles) {
-      const roleEl = document.getElementById(`profile-role-${p.id}`);
-      const nameEl = document.getElementById(`profile-name-${p.id}`);
-      const kanaEl = document.getElementById(`profile-kana-${p.id}`);
-      const bioEl  = document.getElementById(`profile-bio-${p.id}`);
-      if (roleEl) roleEl.value = p.role || '';
-      if (nameEl) nameEl.value = p.name || '';
-      if (kanaEl) kanaEl.value = p.kana || '';
-      if (bioEl)  bioEl.value  = p.bio  || '';
+      const roleEl    = document.getElementById(`profile-role-${p.id}`);
+      const nameEl    = document.getElementById(`profile-name-${p.id}`);
+      const kanaEl    = document.getElementById(`profile-kana-${p.id}`);
+      const bioEl     = document.getElementById(`profile-bio-${p.id}`);
+      const xEl       = document.getElementById(`profile-x-${p.id}`);
+      const websiteEl = document.getElementById(`profile-website-${p.id}`);
+      if (roleEl)    roleEl.value    = p.role    || '';
+      if (nameEl)    nameEl.value    = p.name    || '';
+      if (kanaEl)    kanaEl.value    = p.kana    || '';
+      if (bioEl)     bioEl.value     = p.bio     || '';
+      if (xEl)       xEl.value       = p.xAccount || '';
+      if (websiteEl) websiteEl.value = p.website  || '';
       // Update photo preview
       if (p.photo) {
         const img = document.getElementById(`photo-${p.id}`);
@@ -282,6 +286,8 @@ async function saveProfile(role) {
   const name     = document.getElementById(`profile-name-${role}`)?.value.trim();
   const kana     = document.getElementById(`profile-kana-${role}`)?.value.trim();
   const bio      = document.getElementById(`profile-bio-${role}`)?.value.trim();
+  const xAccount = document.getElementById(`profile-x-${role}`)?.value.trim() || '';
+  const website  = document.getElementById(`profile-website-${role}`)?.value.trim() || '';
 
   if (!name) return showToast('名前を入力してください', 'error');
   if (!role_val) return showToast('役割ラベルを入力してください', 'error');
@@ -294,7 +300,7 @@ async function saveProfile(role) {
     const res = await fetch(`/api/profiles/${role}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ role: role_val, name, kana, bio })
+      body: JSON.stringify({ role: role_val, name, kana, bio, xAccount, website })
     });
     if (res.status === 401) { window.location.href = '/login.html'; return; }
     if (!res.ok) throw new Error((await res.json()).error || '保存失敗');

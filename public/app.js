@@ -122,6 +122,13 @@ async function loadEpisodes() {
 
 loadEpisodes();
 
+function xAccountUrl(val) {
+  if (!val) return '#';
+  if (val.startsWith('http')) return val;
+  const handle = val.replace(/^@/, '');
+  return `https://x.com/${handle}`;
+}
+
 // ===== Speakers =====
 const AVATAR_STYLES = {
   reporter: 'speaker-avatar--reporter',
@@ -142,6 +149,17 @@ function renderSpeaker(p) {
         <span class="${roleClass}">${escHtml(p.role || '')}</span>
         <h3 class="speaker-name">${escHtml(p.name || '')}${p.kana ? `<span class="speaker-name-kana">${escHtml(p.kana)}</span>` : ''}</h3>
         <p class="speaker-bio">${escHtml(p.bio || '')}</p>
+        ${(p.xAccount || p.website) ? `
+        <div class="speaker-links">
+          ${p.xAccount ? `<a class="speaker-link speaker-link--x" href="${escHtml(xAccountUrl(p.xAccount))}" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            ${escHtml(p.xAccount.startsWith('@') ? p.xAccount : '@' + p.xAccount.replace(/.*x\.com\//, ''))}
+          </a>` : ''}
+          ${p.website ? `<a class="speaker-link speaker-link--web" href="${escHtml(p.website)}" target="_blank" rel="noopener noreferrer">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+            ウェブサイト
+          </a>` : ''}
+        </div>` : ''}
       </div>
     </div>`;
 }
