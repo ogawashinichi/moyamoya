@@ -819,8 +819,14 @@ body.is-admin .episode-edit-btn { display: flex; }
 /* ===== Responsive ===== */
 @media (max-width: 480px) {
   .site-header { top: 10px; width: 94%; left: 3%; }
-  .header-inner { height: 54px; padding: 0 14px; }
+  .header-inner { height: 54px; padding: 0 12px; gap: 8px; }
+  .logo { gap: 8px; }
+  .logo-icon { width: 30px; height: 30px; }
+  .logo-icon svg { width: 14px; height: 14px; }
   .logo-name { font-size: 12px; }
+  .logo-sub { display: none; }
+  .nav-link { display: none; }
+  .nav-btn { font-size: 12px; padding: 7px 14px; white-space: nowrap; }
   .hero { padding: 100px 0 52px; }
   .episodes-section { padding: 40px 0 56px; }
   .admin-card { padding: 22px 18px; }
