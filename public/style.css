@@ -912,3 +912,21 @@ body.is-admin .episode-edit-btn { display: flex; }
   cursor: pointer; transition: var(--transition);
 }
 .msg-mark-all-btn:hover { transform: translate(-1px,-1px); box-shadow: 2px 2px 0px var(--text); }
+
+/* ===== Admin nav tabs ===== */
+.admin-nav-tabs {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  margin-bottom: 32px;
+}
+.admin-nav-tab {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 800; font-family: var(--font-heading);
+  padding: 8px 16px; border-radius: 8px;
+  border: 2.5px solid var(--text); background: white; color: var(--text);
+  text-decoration: none; transition: var(--transition);
+  box-shadow: 3px 3px 0px var(--text);
+}
+.admin-nav-tab:hover { transform: translate(-1px,-1px); box-shadow: 4px 4px 0px var(--text); }
+.admin-nav-tab.active { background: var(--text); color: white; }
+.admin-breadcrumb { font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
+.admin-breadcrumb a { color: var(--muted); text-decoration: underline; }
