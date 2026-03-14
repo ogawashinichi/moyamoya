@@ -881,3 +881,34 @@ body.is-admin .episode-edit-btn { display: flex; }
   font-family: var(--font-heading); transition: var(--transition); color: #e03;
 }
 .btn-read:hover, .btn-delete-msg:hover { transform: translate(-1px,-1px); box-shadow: 2px 2px 0px var(--text); }
+
+/* ===== Messages page ===== */
+.btn-messages {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 13px; font-weight: 800; font-family: var(--font-heading);
+  color: var(--text); background: var(--pop-yellow);
+  padding: 8px 18px; border-radius: 20px;
+  border: 3px solid var(--text); box-shadow: 3px 3px 0px var(--text);
+  transition: var(--transition); text-decoration: none; white-space: nowrap;
+}
+.btn-messages:hover { transform: translate(-2px,-2px); box-shadow: 5px 5px 0px var(--text); }
+.btn-messages .msg-badge { font-size: 11px; padding: 1px 6px; margin-left: 2px; }
+.msg-toolbar {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+  margin-bottom: 24px;
+}
+.msg-filter-btn {
+  font-size: 13px; font-weight: 800; font-family: var(--font-heading);
+  padding: 6px 16px; border-radius: 20px;
+  border: 2px solid var(--text); background: white; cursor: pointer;
+  transition: var(--transition);
+}
+.msg-filter-btn.active { background: var(--text); color: white; }
+.msg-filter-btn:hover:not(.active) { background: var(--bg); }
+.msg-mark-all-btn {
+  font-size: 12px; font-weight: 800; font-family: var(--font-heading);
+  padding: 6px 14px; border-radius: 20px; margin-left: auto;
+  border: 2px solid var(--text); background: var(--pop-pink); color: white;
+  cursor: pointer; transition: var(--transition);
+}
+.msg-mark-all-btn:hover { transform: translate(-1px,-1px); box-shadow: 2px 2px 0px var(--text); }

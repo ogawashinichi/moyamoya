@@ -308,51 +308,20 @@ async function saveSettings() {
 
 loadSettings();
 
-// ===== Messages =====
-async function loadMessages() {
-  const list = document.getElementById('messages-list');
-  if (!list) return;
+
+// ===== Unread badge =====
+async function loadUnreadBadge() {
   try {
     const res = await fetch('/api/messages');
-    if (!res.ok) { list.innerHTML = '<p class="loading-text">ログインが必要です</p>'; return; }
+    if (!res.ok) return;
     const messages = await res.json();
     const unread = messages.filter(m => !m.read).length;
     const badge = document.getElementById('msg-unread-badge');
     if (badge) {
-      badge.textContent = unread > 0 ? `未読 ${unread}件` : '';
+      badge.textContent = unread > 0 ? unread : '';
       badge.style.display = unread > 0 ? 'inline-block' : 'none';
     }
-    if (!messages.length) { list.innerHTML = '<p class="loading-text">まだメッセージはありません</p>'; return; }
-    list.innerHTML = messages.map(m => `
-      <div class="msg-card ${m.read ? 'msg-card--read' : ''}" id="msg-${m.id}">
-        <div class="msg-meta">
-          <span class="msg-name">${escHtml(m.name)}</span>
-          <span class="msg-date">${formatDate(m.createdAt)}</span>
-          ${!m.read ? '<span class="msg-new">NEW</span>' : ''}
-        </div>
-        <p class="msg-body">${escHtml(m.message)}</p>
-        <div class="msg-actions">
-          ${!m.read ? `<button class="btn-read" onclick="markRead('${m.id}')">既読にする</button>` : ''}
-          <button class="btn-delete-msg" onclick="deleteMessage('${m.id}')">削除</button>
-        </div>
-      </div>`).join('');
-  } catch { list.innerHTML = '<p class="loading-text">読み込みに失敗しました</p>'; }
+  } catch {}
 }
 
-function formatDate(iso) {
-  const d = new Date(iso);
-  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-}
-
-async function markRead(id) {
-  await fetch(`/api/messages/${id}/read`, { method: 'PATCH' });
-  loadMessages();
-}
-
-async function deleteMessage(id) {
-  if (!confirm('このメッセージを削除しますか？')) return;
-  await fetch(`/api/messages/${id}`, { method: 'DELETE' });
-  loadMessages();
-}
-
-loadMessages();
+loadUnreadBadge();
