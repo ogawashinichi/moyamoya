@@ -1,13 +1,20 @@
-# 新聞記者のもやもや話 — X Spaces アーカイブ
+# 新聞記者のもやもや話
 
-東京新聞デジタル編集部の記者・デスクによる X スペースの配信アーカイブサイトです。
-音声ファイルのアップロード、または X スペースのリンクを登録して公開できます。
+東京新聞デジタル編集部の記者・デスクによる音声アーカイブサイトです。
+X スペースまたは Spotify のリンクを登録して公開できます。
 
-## スクリーンショット
+🌐 **公開サイト：** https://moyamoya.onrender.com
+*(Renderにデプロイ後、URLを更新してください)*
 
-| 公開ページ | 管理画面 |
-|---|---|
-| エピソード一覧（音声プレーヤー or Xリンク） | 新規登録・プロフィール編集 |
+---
+
+## 機能
+
+- 🎙️ **X スペースリンク登録** — X スペースの録音URLを登録してリンクボタンを表示
+- 🎵 **Spotify 埋め込み** — Spotify エピソードのURLを登録してプレーヤーを表示
+- 👤 **話者プロフィール** — 写真・プロフィール文・X アカウント・ウェブサイトを管理
+- ✏️ **エピソード編集・削除** — 登録済みエピソードをいつでも修正可能
+- 🔒 **管理画面認証** — ログイン保護・ブルートフォース対策済み
 
 ---
 
@@ -18,13 +25,13 @@
 
 ---
 
-## セットアップ
+## ローカルでのセットアップ
 
 ### 1. リポジトリをクローン
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/YOUR_REPO.git
-cd YOUR_REPO
+git clone https://github.com/ogawashinichi/moyamoya.git
+cd moyamoya
 ```
 
 ### 2. 依存パッケージをインストール
@@ -35,13 +42,11 @@ npm install
 
 ### 3. 管理者設定ファイルを作成
 
-`admin.config.example.json` をコピーして `admin.config.json` を作成し、ユーザー名・パスワードを設定します。
-
 ```bash
 cp admin.config.example.json admin.config.json
 ```
 
-`admin.config.json` を編集：
+`admin.config.json` を編集してユーザー名・パスワードを設定：
 
 ```json
 {
@@ -51,15 +56,9 @@ cp admin.config.example.json admin.config.json
 }
 ```
 
-> ⚠️ `admin.config.json` は `.gitignore` で除外されています。絶対に Git にコミットしないでください。
+> ⚠️ `admin.config.json` は `.gitignore` で除外されています。Git にコミットしないでください。
 
-### 4. フォルダを作成
-
-```bash
-mkdir -p data public/images
-```
-
-### 5. サーバーを起動
+### 4. サーバーを起動
 
 ```bash
 node server.js
@@ -69,24 +68,43 @@ node server.js
 
 ---
 
+## Render へのデプロイ
+
+1. [Render](https://render.com) で新しい **Web Service** を作成
+2. GitHub リポジトリ（`ogawashinichi/moyamoya`）を連携
+3. 以下の設定を入力：
+
+| 項目 | 値 |
+|------|-----|
+| Build Command | `npm install` |
+| Start Command | `node server.js` |
+| Environment | `Node` |
+
+4. **Environment Variables** に以下を追加：
+
+| 変数名 | 値 |
+|--------|-----|
+| `ADMIN_USERNAME` | 管理者ユーザー名 |
+| `ADMIN_PASSWORD` | 管理者パスワード |
+| `SESSION_SECRET` | ランダムな長い文字列 |
+| `NODE_ENV` | `production` |
+
+---
+
 ## 使い方
 
-### 公開ページ
-- `http://localhost:3000` — 配信アーカイブ一覧
+### エピソードを登録する
 
-### 管理画面
-- `http://localhost:3000/admin.html` — ログイン後に使用可能
+管理画面（`/admin.html`）にログイン後：
 
-#### エピソードの登録方法
+- **Xスペースリンク** タブ → `https://x.com/i/spaces/…` のURLを入力
+- **Spotify** タブ → `https://open.spotify.com/episode/…` のURLを入力
 
-**音声ファイルをアップロードする場合**
-「音声ファイル」タブを選択 → M4A / MP3 / MP4 / WAV / AAC（最大500MB）をドロップ
+### プロフィールを編集する
 
-**X スペースのリンクを登録する場合**
-「Xスペースリンク」タブを選択 → `https://x.com/i/spaces/…` の形式で URL を入力
-
-#### エピソードの編集
-- 公開ページまたは管理画面の ✏️ ボタン → タイトル・日付・概要・XスペースURLを編集可能
+管理画面の「話している人」セクションで：
+- 名前・プロフィール文・写真を設定
+- X アカウント（`@username`）やウェブサイトURLを追加すると公開ページにリンクボタンが表示されます
 
 ---
 
@@ -94,22 +112,20 @@ node server.js
 
 ```
 .
-├── server.js              # Express サーバー
-├── episodes.json          # エピソードデータ（自動生成）
-├── profiles.json          # 話者プロフィール（自動生成）
-├── settings.json          # サイト設定（自動生成）
-├── admin.config.json      # 管理者認証情報（.gitignore 除外）
+├── server.js                  # Express サーバー
+├── episodes.json              # エピソードデータ
+├── profiles.json              # 話者プロフィール
+├── settings.json              # サイト設定
+├── admin.config.json          # 管理者認証情報（.gitignore 除外）
 ├── admin.config.example.json  # 設定ファイルのテンプレート
-├── data/                  # 音声ファイル置き場（.gitignore 除外）
-├── public/
-│   ├── index.html         # 公開ページ
-│   ├── admin.html         # 管理画面
-│   ├── login.html         # ログインページ
-│   ├── app.js             # 公開ページのスクリプト
-│   ├── admin.js           # 管理画面のスクリプト
-│   ├── style.css          # スタイルシート
-│   └── images/            # アップロード画像（.gitignore 除外）
-└── package.json
+└── public/
+    ├── index.html             # 公開ページ
+    ├── admin.html             # 管理画面
+    ├── login.html             # ログインページ
+    ├── favicon.svg            # ファビコン（マイクアイコン）
+    ├── app.js                 # 公開ページのスクリプト
+    ├── admin.js               # 管理画面のスクリプト
+    └── style.css              # スタイルシート
 ```
 
 ---
