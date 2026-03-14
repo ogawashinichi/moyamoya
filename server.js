@@ -7,10 +7,31 @@ const path = require('path');
 const app = express();
 app.set('trust proxy', 1); // Render等のリバースプロキシ経由でも正しくセッションを処理
 const PORT = process.env.PORT || 3000;
-const EPISODES_FILE = path.join(__dirname, 'episodes.json');
-const CONFIG_FILE = path.join(__dirname, 'admin.config.json');
-const PROFILES_FILE = path.join(__dirname, 'profiles.json');
-const SETTINGS_FILE = path.join(__dirname, 'settings.json');
+
+// データ保存先：STORAGE_DIR 環境変数があればそちらを使う（Render Persistent Disk 用）
+const STORAGE_DIR = process.env.STORAGE_DIR || __dirname;
+if (process.env.STORAGE_DIR && !fs.existsSync(process.env.STORAGE_DIR)) {
+  fs.mkdirSync(process.env.STORAGE_DIR, { recursive: true });
+}
+
+// 既存ファイルをストレージディレクトリへ初回コピー（データ移行用）
+function migrateIfNeeded(filename) {
+  const src = path.join(__dirname, filename);
+  const dest = path.join(STORAGE_DIR, filename);
+  if (STORAGE_DIR !== __dirname && !fs.existsSync(dest) && fs.existsSync(src)) {
+    fs.copyFileSync(src, dest);
+  }
+}
+['episodes.json', 'profiles.json', 'settings.json'].forEach(migrateIfNeeded);
+
+const EPISODES_FILE = path.join(STORAGE_DIR, 'episodes.json');
+const CONFIG_FILE   = path.join(__dirname, 'admin.config.json'); // 認証情報はenvで管理
+const PROFILES_FILE = path.join(STORAGE_DIR, 'profiles.json');
+const SETTINGS_FILE = path.join(STORAGE_DIR, 'settings.json');
+const DATA_DIR      = process.env.STORAGE_DIR
+  ? path.join(process.env.STORAGE_DIR, 'data')
+  : path.join(__dirname, 'data');
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
 
 // ===== Load admin config =====
 let adminConfig;
