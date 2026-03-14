@@ -15,44 +15,20 @@ document.getElementById('btn-logout').addEventListener('click', async () => {
 
 // ===== DOM refs =====
 const form = document.getElementById('register-form');
-const audioInput = document.getElementById('input-audio');
-const fileInfo = document.getElementById('file-info');
-const dropZone = document.getElementById('drop-zone');
-const progressWrap = document.getElementById('progress-wrap');
-const progressBar = document.getElementById('progress-bar');
-const progressText = document.getElementById('progress-text');
 const btnSubmit = document.getElementById('btn-submit');
 const toast = document.getElementById('toast');
 const recentList = document.getElementById('recent-list');
 const editModal = document.getElementById('edit-modal');
 
 // ===== Input type toggle =====
-let currentInputType = 'file';
+let currentInputType = 'link';
 function switchInputType(type) {
   currentInputType = type;
-  document.getElementById('tab-file').classList.toggle('active', type === 'file');
   document.getElementById('tab-link').classList.toggle('active', type === 'link');
   document.getElementById('tab-spotify').classList.toggle('active', type === 'spotify');
-  document.getElementById('section-file').style.display = type === 'file' ? '' : 'none';
   document.getElementById('section-link').style.display = type === 'link' ? '' : 'none';
   document.getElementById('section-spotify').style.display = type === 'spotify' ? '' : 'none';
 }
-
-// ===== File upload UI =====
-audioInput.addEventListener('change', () => showSelectedFile(audioInput.files[0]));
-function showSelectedFile(file) {
-  if (!file) { fileInfo.style.display = 'none'; return; }
-  fileInfo.style.display = 'flex';
-  const size = file.size < 1024*1024 ? `${(file.size/1024).toFixed(0)} KB` : `${(file.size/1024/1024).toFixed(1)} MB`;
-  fileInfo.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(file.name)}</span><span style="color:var(--muted);flex-shrink:0;">${size}</span>`;
-}
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault(); dropZone.classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (file) { const dt = new DataTransfer(); dt.items.add(file); audioInput.files = dt.files; showSelectedFile(file); }
-});
 
 // ===== Register form =====
 form.addEventListener('submit', e => {
@@ -62,26 +38,6 @@ form.addEventListener('submit', e => {
   const description = document.getElementById('input-description').value.trim();
   if (!date) return showToast('配信日を入力してください', 'error');
   if (!title) return showToast('タイトルを入力してください', 'error');
-
-  if (currentInputType === 'link') {
-    const spaceUrl = document.getElementById('input-space-url').value.trim();
-    if (!spaceUrl) return showToast('XスペースURLを入力してください', 'error');
-    btnSubmit.disabled = true; btnSubmit.textContent = '登録中…';
-    fetch('/api/episodes/link', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, date, description, spaceUrl })
-    }).then(async res => {
-      btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
-      if (res.status === 401) { window.location.href = '/login.html'; return; }
-      if (!res.ok) { const d = await res.json(); showToast(d.error || '登録に失敗しました', 'error'); return; }
-      showToast('登録しました！', 'success');
-      form.reset();
-      switchInputType('file');
-      loadEpisodes();
-    }).catch(() => { btnSubmit.disabled = false; btnSubmit.textContent = '登録する'; showToast('エラーが発生しました', 'error'); });
-    return;
-  }
 
   if (currentInputType === 'spotify') {
     const spotifyUrl = document.getElementById('input-spotify-url').value.trim();
@@ -96,46 +52,26 @@ form.addEventListener('submit', e => {
       if (res.status === 401) { window.location.href = '/login.html'; return; }
       if (!res.ok) { const d = await res.json(); showToast(d.error || '登録に失敗しました', 'error'); return; }
       showToast('登録しました！', 'success');
-      form.reset();
-      switchInputType('file');
-      loadEpisodes();
+      form.reset(); switchInputType('link'); loadEpisodes();
     }).catch(() => { btnSubmit.disabled = false; btnSubmit.textContent = '登録する'; showToast('エラーが発生しました', 'error'); });
     return;
   }
 
-  const file = audioInput.files[0];
-  if (!file) return showToast('音声ファイルを選択してください', 'error');
-
-  const formData = new FormData(form);
-  const xhr = new XMLHttpRequest();
-  btnSubmit.disabled = true; btnSubmit.textContent = 'アップロード中…';
-  progressWrap.classList.add('visible'); progressBar.style.width = '0'; progressText.textContent = '0%';
-
-  xhr.upload.onprogress = e => {
-    if (!e.lengthComputable) return;
-    const pct = Math.round(e.loaded / e.total * 100);
-    progressBar.style.width = `${pct}%`; progressText.textContent = `${pct}%`;
-  };
-  xhr.onload = () => {
+  // Xスペースリンク
+  const spaceUrl = document.getElementById('input-space-url').value.trim();
+  if (!spaceUrl) return showToast('XスペースURLを入力してください', 'error');
+  btnSubmit.disabled = true; btnSubmit.textContent = '登録中…';
+  fetch('/api/episodes/link', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ title, date, description, spaceUrl })
+  }).then(async res => {
     btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
-    if (xhr.status === 200) {
-      progressBar.style.width = '100%'; progressText.textContent = '完了';
-      showToast('登録しました！', 'success');
-      form.reset(); fileInfo.style.display = 'none';
-      setTimeout(() => progressWrap.classList.remove('visible'), 2000);
-      loadEpisodes();
-    } else if (xhr.status === 401) {
-      window.location.href = '/login.html';
-    } else {
-      progressWrap.classList.remove('visible');
-      let msg = '登録に失敗しました';
-      try { msg = JSON.parse(xhr.responseText).error || msg; } catch {}
-      showToast(msg, 'error');
-    }
-  };
-  xhr.onerror = () => { btnSubmit.disabled = false; btnSubmit.textContent = '登録する'; progressWrap.classList.remove('visible'); showToast('エラーが発生しました', 'error'); };
-  xhr.open('POST', '/api/episodes');
-  xhr.send(formData);
+    if (res.status === 401) { window.location.href = '/login.html'; return; }
+    if (!res.ok) { const d = await res.json(); showToast(d.error || '登録に失敗しました', 'error'); return; }
+    showToast('登録しました！', 'success');
+    form.reset(); loadEpisodes();
+  }).catch(() => { btnSubmit.disabled = false; btnSubmit.textContent = '登録する'; showToast('エラーが発生しました', 'error'); });
 });
 
 // ===== Edit modal =====

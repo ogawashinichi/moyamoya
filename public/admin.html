@@ -75,27 +75,10 @@
               <textarea id="input-description" name="description" placeholder="この回で話したトピックなど（省略可）"></textarea>
             </div>
             <div class="input-type-tabs">
-              <button type="button" class="input-type-tab active" id="tab-file" onclick="switchInputType('file')">音声ファイル</button>
-              <button type="button" class="input-type-tab" id="tab-link" onclick="switchInputType('link')">Xスペースリンク</button>
+              <button type="button" class="input-type-tab active" id="tab-link" onclick="switchInputType('link')">Xスペースリンク</button>
               <button type="button" class="input-type-tab" id="tab-spotify" onclick="switchInputType('spotify')">Spotify</button>
             </div>
-            <div id="section-file">
-              <div class="form-group">
-                <label>音声ファイル<span class="required">*</span></label>
-                <div class="file-upload-area" id="drop-zone">
-                  <input type="file" id="input-audio" name="audio" accept=".m4a,.mp3,.mp4,.wav,.aac,.ogg">
-                  <div class="upload-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
-                    </svg>
-                  </div>
-                  <div class="upload-label">ファイルを選択またはドロップ</div>
-                  <div class="upload-sub">M4A・MP3・MP4・WAV・AAC（最大 500 MB）</div>
-                </div>
-                <div class="file-selected" id="file-info" style="display:none;"></div>
-              </div>
-            </div>
-            <div id="section-link" style="display:none;">
+            <div id="section-link">
               <div class="form-group">
                 <label for="input-space-url">XスペースURL<span class="required">*</span></label>
                 <input type="url" id="input-space-url" placeholder="https://x.com/i/spaces/…">
@@ -108,10 +91,6 @@
                 <input type="url" id="input-spotify-url" placeholder="https://open.spotify.com/episode/…">
                 <div class="form-hint">例：https://open.spotify.com/episode/4rOoJ6Egrf8K2IrywzwOMk</div>
               </div>
-            </div>
-            <div class="progress-wrap" id="progress-wrap">
-              <div class="progress-track"><div class="progress-bar" id="progress-bar"></div></div>
-              <div class="progress-text" id="progress-text">0%</div>
             </div>
             <button type="submit" class="btn-submit" id="btn-submit">登録する</button>
           </form>

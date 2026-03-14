@@ -4,9 +4,6 @@ node_modules/
 # 管理者設定（パスワードを含むため除外）
 admin.config.json
 
-# 音声データ（容量が大きいため除外）
-data/
-
 # アップロードされた画像（ローカル環境のもの）
 public/images/
 

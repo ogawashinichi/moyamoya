@@ -6,7 +6,6 @@ const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_DIR = path.join(__dirname, 'data');
 const EPISODES_FILE = path.join(__dirname, 'episodes.json');
 const CONFIG_FILE = path.join(__dirname, 'admin.config.json');
 const PROFILES_FILE = path.join(__dirname, 'profiles.json');
@@ -39,7 +38,6 @@ app.use(session({
   cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 } // 8 hours
 }));
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/data', express.static(DATA_DIR));
 
 // ===== Auth middleware =====
 function requireAuth(req, res, next) {
@@ -168,81 +166,15 @@ app.put('/api/profiles/:id', requireAuth, (req, res) => {
 });
 
 // ===== Episodes API =====
-function parseFilename(filename) {
-  const base = path.basename(filename, path.extname(filename));
-  const match = base.match(/^(\d{8})_(.+)$/);
-  if (!match) return null;
-  const dateStr = match[1];
-  const title = match[2];
-  const date = `${dateStr.slice(0, 4)}-${dateStr.slice(4, 6)}-${dateStr.slice(6, 8)}`;
-  return { date, title };
-}
-
 function initEpisodes() {
-  let episodes = [];
-  if (fs.existsSync(EPISODES_FILE)) {
-    try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
+  if (!fs.existsSync(EPISODES_FILE)) {
+    fs.writeFileSync(EPISODES_FILE, '[]');
+    console.log('  episodes.json を作成しました');
   }
-  const files = fs.readdirSync(DATA_DIR).filter(f => /\.(m4a|mp3|mp4|wav|ogg|aac)$/i.test(f));
-  const existingFilenames = new Set(episodes.map(e => e.filename));
-  for (const file of files) {
-    if (!existingFilenames.has(file)) {
-      const parsed = parseFilename(file);
-      if (parsed) {
-        episodes.push({
-          id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-          filename: file, title: parsed.title, date: parsed.date,
-          description: '', createdAt: new Date().toISOString()
-        });
-      }
-    }
-  }
-  episodes.sort((a, b) => b.date.localeCompare(a.date));
-  fs.writeFileSync(EPISODES_FILE, JSON.stringify(episodes, null, 2));
-  console.log(`  ${episodes.length} エピソードを読み込みました`);
 }
-
-const storage = multer.diskStorage({
-  destination: DATA_DIR,
-  filename: (req, file, cb) => {
-    const { title, date } = req.body;
-    const dateStr = date.replace(/-/g, '');
-    const ext = path.extname(file.originalname) || '.m4a';
-    const safeTitle = title.trim().replace(/[/\\:*?"<>|]/g, '_');
-    cb(null, `${dateStr}_${safeTitle}${ext}`);
-  }
-});
-const upload = multer({
-  storage,
-  fileFilter: (req, file, cb) => {
-    /\.(m4a|mp3|mp4|wav|ogg|aac)$/i.test(file.originalname) ? cb(null, true) : cb(new Error('対応していないファイル形式です'));
-  },
-  limits: { fileSize: 500 * 1024 * 1024 }
-});
 
 app.get('/api/episodes', (req, res) => {
   try { res.json(JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8'))); } catch { res.json([]); }
-});
-
-app.post('/api/episodes', requireAuth, upload.single('audio'), (req, res) => {
-  try {
-    const { title, date, description } = req.body;
-    if (!title || !date || !req.file) return res.status(400).json({ error: 'タイトル、日付、ファイルは必須です' });
-    let episodes = [];
-    try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
-    const episode = {
-      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      filename: req.file.filename, title: title.trim(), date,
-      description: (description || '').trim(), createdAt: new Date().toISOString()
-    };
-    episodes.push(episode);
-    episodes.sort((a, b) => b.date.localeCompare(a.date));
-    fs.writeFileSync(EPISODES_FILE, JSON.stringify(episodes, null, 2));
-    console.log(`  新規登録: ${episode.date} "${episode.title}"`);
-    res.json(episode);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
 });
 
 app.post('/api/episodes/link', requireAuth, (req, res) => {
