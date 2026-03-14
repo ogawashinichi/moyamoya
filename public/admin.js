@@ -179,6 +179,7 @@ async function loadEpisodes() {
             <div class="recent-item-title">${escHtml(ep.title)}</div>
           </div>
           <button class="recent-item-edit" title="編集" data-id="${ep.id}">✏️</button>
+          <button class="recent-item-delete" title="削除" data-id="${ep.id}" data-title="${escHtml(ep.title)}">🗑️</button>
         </div>`;
     }).join('');
 
@@ -186,6 +187,21 @@ async function loadEpisodes() {
       btn.addEventListener('click', () => {
         const ep = episodes.find(e => e.id === btn.dataset.id);
         if (ep) openEditModal(ep);
+      });
+    });
+
+    recentList.querySelectorAll('.recent-item-delete').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        if (!confirm(`「${btn.dataset.title}」を削除しますか？\nこの操作は取り消せません。`)) return;
+        try {
+          const res = await fetch(`/api/episodes/${btn.dataset.id}`, { method: 'DELETE' });
+          if (res.status === 401) { window.location.href = '/login.html'; return; }
+          if (!res.ok) throw new Error((await res.json()).error);
+          showToast('削除しました', 'success');
+          loadEpisodes();
+        } catch (err) {
+          showToast(err.message || '削除に失敗しました', 'error');
+        }
       });
     });
   } catch { recentList.innerHTML = '<p style="color:var(--muted);font-size:14px;">読み込みに失敗しました</p>'; }

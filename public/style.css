@@ -750,6 +750,13 @@ body.is-admin .episode-edit-btn { display: flex; }
   box-shadow: 2px 2px 0px var(--text);
 }
 .recent-item-edit:hover { background: var(--pop-yellow); color: var(--text); transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--text); }
+.recent-item-delete {
+  flex-shrink: 0; background: white; border: 2px solid var(--text); cursor: pointer;
+  color: var(--muted); padding: 4px 8px; border-radius: 8px;
+  font-size: 14px; transition: var(--transition); align-self: flex-start;
+  box-shadow: 2px 2px 0px var(--text);
+}
+.recent-item-delete:hover { background: #ff4757; color: white; border-color: #ff4757; transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--text); }
 
 /* ===== Edit Modal ===== */
 .modal-overlay {

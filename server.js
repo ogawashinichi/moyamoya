@@ -272,6 +272,20 @@ app.post('/api/episodes/link', requireAuth, (req, res) => {
   }
 });
 
+app.delete('/api/episodes/:id', requireAuth, (req, res) => {
+  try {
+    let episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8'));
+    const idx = episodes.findIndex(e => e.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'エピソードが見つかりません' });
+    const deleted = episodes.splice(idx, 1)[0];
+    fs.writeFileSync(EPISODES_FILE, JSON.stringify(episodes, null, 2));
+    console.log(`  削除: "${deleted.title}"`);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.put('/api/episodes/:id', requireAuth, (req, res) => {
   try {
     const { title, date, description, spaceUrl } = req.body;
