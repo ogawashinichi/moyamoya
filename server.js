@@ -31,11 +31,26 @@ if (process.env.ADMIN_USERNAME) {
 // ===== Middleware =====
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// セキュリティヘッダー
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'microphone=(), camera=()');
+  next();
+});
+
+const isProduction = process.env.NODE_ENV === 'production';
 app.use(session({
   secret: adminConfig.sessionSecret,
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, maxAge: 8 * 60 * 60 * 1000 } // 8 hours
+  cookie: {
+    httpOnly: true,
+    secure: isProduction,  // HTTPS環境（Render）では自動でsecureに
+    maxAge: 8 * 60 * 60 * 1000 // 8 hours
+  }
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
@@ -45,17 +60,43 @@ function requireAuth(req, res, next) {
   res.status(401).json({ error: 'ログインが必要です', redirect: '/login.html' });
 }
 
+// ===== ログイン試行回数制限 =====
+const loginAttempts = new Map(); // ip -> { count, blockedUntil }
+function checkLoginLimit(ip) {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip) || { count: 0, blockedUntil: 0 };
+  if (entry.blockedUntil > now) return false; // ブロック中
+  return true;
+}
+function recordFailedLogin(ip) {
+  const now = Date.now();
+  const entry = loginAttempts.get(ip) || { count: 0, blockedUntil: 0 };
+  entry.count += 1;
+  if (entry.count >= 10) {
+    entry.blockedUntil = now + 15 * 60 * 1000; // 10回失敗で15分ブロック
+    entry.count = 0;
+  }
+  loginAttempts.set(ip, entry);
+}
+function clearLoginLimit(ip) { loginAttempts.delete(ip); }
+
 // ===== Auth API =====
 app.get('/api/auth/check', (req, res) => {
   res.json({ authenticated: !!(req.session && req.session.authenticated) });
 });
 
 app.post('/api/auth/login', (req, res) => {
+  const ip = req.ip || req.connection.remoteAddress;
+  if (!checkLoginLimit(ip)) {
+    return res.status(429).json({ error: 'ログイン試行回数が多すぎます。しばらく待ってから再試行してください。' });
+  }
   const { username, password } = req.body;
   if (username === adminConfig.username && password === adminConfig.password) {
+    clearLoginLimit(ip);
     req.session.authenticated = true;
     res.json({ ok: true });
   } else {
+    recordFailedLogin(ip);
     res.status(401).json({ error: 'ユーザー名またはパスワードが違います' });
   }
 });
@@ -63,6 +104,17 @@ app.post('/api/auth/login', (req, res) => {
 app.post('/api/auth/logout', (req, res) => {
   req.session.destroy(() => res.json({ ok: true }));
 });
+
+// ===== URLバリデーション =====
+function isSafeUrl(url) {
+  if (!url) return true; // 空は許可（任意フィールド）
+  try {
+    const u = new URL(url);
+    return u.protocol === 'https:' || u.protocol === 'http:';
+  } catch {
+    return false;
+  }
+}
 
 // ===== Image Upload API =====
 const imageUpload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 10 * 1024 * 1024 } });
@@ -156,7 +208,7 @@ app.put('/api/profiles/:id', requireAuth, (req, res) => {
       role: role.trim(),
       bio: (bio || '').trim(),
       xAccount: (xAccount || '').trim(),
-      website: (website || '').trim()
+      website: isSafeUrl(website) ? (website || '').trim() : ''
     };
     fs.writeFileSync(PROFILES_FILE, JSON.stringify(profiles, null, 2));
     res.json(profiles[idx]);
@@ -181,6 +233,7 @@ app.post('/api/episodes/link', requireAuth, (req, res) => {
   try {
     const { title, date, description, spaceUrl } = req.body;
     if (!title || !date || !spaceUrl) return res.status(400).json({ error: 'タイトル、日付、スペースURLは必須です' });
+    if (!isSafeUrl(spaceUrl)) return res.status(400).json({ error: '無効なURLです' });
     let episodes = [];
     try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
     const episode = {
@@ -217,6 +270,7 @@ app.post('/api/episodes/spotify', requireAuth, (req, res) => {
   try {
     const { title, date, description, spotifyUrl } = req.body;
     if (!title || !date || !spotifyUrl) return res.status(400).json({ error: 'タイトル、日付、SpotifyURLは必須です' });
+    if (!isSafeUrl(spotifyUrl)) return res.status(400).json({ error: '無効なURLです' });
     let episodes = [];
     try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
     const episode = {
