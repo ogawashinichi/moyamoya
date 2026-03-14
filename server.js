@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
+app.set('trust proxy', 1); // Render等のリバースプロキシ経由でも正しくセッションを処理
 const PORT = process.env.PORT || 3000;
 const EPISODES_FILE = path.join(__dirname, 'episodes.json');
 const CONFIG_FILE = path.join(__dirname, 'admin.config.json');
