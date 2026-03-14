@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>新聞記者のもやもや話 — Xスペース アーカイブ</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;500;700;800;900&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div class="container">
+      <div class="header-inner">
+        <a href="/" class="logo" aria-label="トップページへ">
+          <div class="logo-icon">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2a3 3 0 0 1 3 3v6a3 3 0 0 1-6 0V5a3 3 0 0 1 3-3zm7 9a1 1 0 0 0-2 0 5 5 0 0 1-10 0 1 1 0 0 0-2 0 7 7 0 0 0 6 6.93V20H9a1 1 0 0 0 0 2h6a1 1 0 0 0 0-2h-2v-2.07A7 7 0 0 0 19 11z"/>
+            </svg>
+          </div>
+          <div>
+            <div class="logo-name">新聞記者のもやもや話</div>
+            <div class="logo-sub">X SPACES ARCHIVE</div>
+          </div>
+        </a>
+        <nav class="site-nav">
+          <a href="/" class="nav-link active">アーカイブ</a>
+          <a href="/admin.html" class="nav-btn">＋ 管理</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-blob hero-blob-1"></div>
+    <div class="hero-blob hero-blob-2"></div>
+    <div class="hero-blob hero-blob-3"></div>
+    <div class="container hero-content">
+      <div class="hero-eyebrow">🎙️ &nbsp;Xスペース 音声アーカイブ</div>
+      <h1 class="hero-title">
+        新聞記者の<span class="highlight">もやもや</span>話
+      </h1>
+      <p class="hero-desc" id="hero-desc">
+        東京新聞デジタル編集部の記者とデスクが日々感じている「もやもや」を語り合っています。取材での悩みや葛藤、ジャーナリズムの課題、社会の問いかけ。過去の配信アーカイブをこちらでお聴きいただけます
+      </p>
+    </div>
+  </section>
+
+  <div class="wave-divider">
+    <svg viewBox="0 0 1440 56" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,28 C180,56 360,0 540,28 C720,56 900,0 1080,28 C1260,56 1380,14 1440,28 L1440,56 L0,56 Z" fill="#fef9f2"/>
+    </svg>
+  </div>
+
+  <main>
+    <section class="speakers-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">話している人</h2>
+        </div>
+        <div class="speakers-grid" id="speakers-grid">
+          <!-- Populated dynamically by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <section class="episodes-section">
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title">
+            <span class="section-title-bar"></span>配信アーカイブ
+          </h2>
+          <span class="section-count" id="section-count"></span>
+        </div>
+        <div class="episodes-grid" id="episodes-grid">
+          <div class="state-loading">
+            <div class="spinner"></div>
+            <p>読み込み中…</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container">
+      <p>新聞記者のもやもや話 — X Spaces Archive &nbsp;|&nbsp;
+        <a href="/admin.html">管理画面</a>
+      </p>
+    </div>
+  </footer>
+
+  <!-- Edit Modal (shown when admin is logged in) -->
+  <div class="modal-overlay" id="edit-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">エピソードを編集</h3>
+        <button class="modal-close" id="modal-close">×</button>
+      </div>
+      <div class="form-group">
+        <label for="edit-date">配信日<span class="required">*</span></label>
+        <input type="date" id="edit-date" required>
+      </div>
+      <div class="form-group">
+        <label for="edit-title">タイトル<span class="required">*</span></label>
+        <input type="text" id="edit-title" required maxlength="200">
+      </div>
+      <div class="form-group">
+        <label for="edit-description">概要（任意）</label>
+        <textarea id="edit-description"></textarea>
+      </div>
+      <div class="form-group">
+        <label for="edit-space-url">XスペースURL（任意）</label>
+        <input type="url" id="edit-space-url" placeholder="https://x.com/i/spaces/…">
+        <div class="form-hint">入力するとカードにリンクボタンが表示されます</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-cancel" id="modal-cancel">キャンセル</button>
+        <button class="btn-save" id="modal-save">保存する</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast" role="alert" aria-live="polite"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>

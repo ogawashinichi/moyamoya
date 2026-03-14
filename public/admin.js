@@ -1,0 +1,326 @@
+const BADGE_COLORS = ['#ff4757','#ff6b35','#9c27b0','#0097a7','#388e3c','#e91e8c'];
+
+// ===== Auth check =====
+(async () => {
+  const res = await fetch('/api/auth/check');
+  const { authenticated } = await res.json();
+  if (!authenticated) window.location.href = '/login.html';
+})();
+
+// ===== Logout =====
+document.getElementById('btn-logout').addEventListener('click', async () => {
+  await fetch('/api/auth/logout', { method: 'POST' });
+  window.location.href = '/login.html';
+});
+
+// ===== DOM refs =====
+const form = document.getElementById('register-form');
+const audioInput = document.getElementById('input-audio');
+const fileInfo = document.getElementById('file-info');
+const dropZone = document.getElementById('drop-zone');
+const progressWrap = document.getElementById('progress-wrap');
+const progressBar = document.getElementById('progress-bar');
+const progressText = document.getElementById('progress-text');
+const btnSubmit = document.getElementById('btn-submit');
+const toast = document.getElementById('toast');
+const recentList = document.getElementById('recent-list');
+const editModal = document.getElementById('edit-modal');
+
+// ===== Input type toggle =====
+let currentInputType = 'file';
+function switchInputType(type) {
+  currentInputType = type;
+  document.getElementById('tab-file').classList.toggle('active', type === 'file');
+  document.getElementById('tab-link').classList.toggle('active', type === 'link');
+  document.getElementById('section-file').style.display = type === 'file' ? '' : 'none';
+  document.getElementById('section-link').style.display = type === 'link' ? '' : 'none';
+}
+
+// ===== File upload UI =====
+audioInput.addEventListener('change', () => showSelectedFile(audioInput.files[0]));
+function showSelectedFile(file) {
+  if (!file) { fileInfo.style.display = 'none'; return; }
+  fileInfo.style.display = 'flex';
+  const size = file.size < 1024*1024 ? `${(file.size/1024).toFixed(0)} KB` : `${(file.size/1024/1024).toFixed(1)} MB`;
+  fileInfo.innerHTML = `<span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(file.name)}</span><span style="color:var(--muted);flex-shrink:0;">${size}</span>`;
+}
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) { const dt = new DataTransfer(); dt.items.add(file); audioInput.files = dt.files; showSelectedFile(file); }
+});
+
+// ===== Register form =====
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const date = document.getElementById('input-date').value.trim();
+  const title = document.getElementById('input-title').value.trim();
+  const description = document.getElementById('input-description').value.trim();
+  if (!date) return showToast('配信日を入力してください', 'error');
+  if (!title) return showToast('タイトルを入力してください', 'error');
+
+  if (currentInputType === 'link') {
+    const spaceUrl = document.getElementById('input-space-url').value.trim();
+    if (!spaceUrl) return showToast('XスペースURLを入力してください', 'error');
+    btnSubmit.disabled = true; btnSubmit.textContent = '登録中…';
+    fetch('/api/episodes/link', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, date, description, spaceUrl })
+    }).then(async res => {
+      btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
+      if (res.status === 401) { window.location.href = '/login.html'; return; }
+      if (!res.ok) { const d = await res.json(); showToast(d.error || '登録に失敗しました', 'error'); return; }
+      showToast('登録しました！', 'success');
+      form.reset();
+      switchInputType('file');
+      loadEpisodes();
+    }).catch(() => { btnSubmit.disabled = false; btnSubmit.textContent = '登録する'; showToast('エラーが発生しました', 'error'); });
+    return;
+  }
+
+  const file = audioInput.files[0];
+  if (!file) return showToast('音声ファイルを選択してください', 'error');
+
+  const formData = new FormData(form);
+  const xhr = new XMLHttpRequest();
+  btnSubmit.disabled = true; btnSubmit.textContent = 'アップロード中…';
+  progressWrap.classList.add('visible'); progressBar.style.width = '0'; progressText.textContent = '0%';
+
+  xhr.upload.onprogress = e => {
+    if (!e.lengthComputable) return;
+    const pct = Math.round(e.loaded / e.total * 100);
+    progressBar.style.width = `${pct}%`; progressText.textContent = `${pct}%`;
+  };
+  xhr.onload = () => {
+    btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
+    if (xhr.status === 200) {
+      progressBar.style.width = '100%'; progressText.textContent = '完了';
+      showToast('登録しました！', 'success');
+      form.reset(); fileInfo.style.display = 'none';
+      setTimeout(() => progressWrap.classList.remove('visible'), 2000);
+      loadEpisodes();
+    } else if (xhr.status === 401) {
+      window.location.href = '/login.html';
+    } else {
+      progressWrap.classList.remove('visible');
+      let msg = '登録に失敗しました';
+      try { msg = JSON.parse(xhr.responseText).error || msg; } catch {}
+      showToast(msg, 'error');
+    }
+  };
+  xhr.onerror = () => { btnSubmit.disabled = false; btnSubmit.textContent = '登録する'; progressWrap.classList.remove('visible'); showToast('エラーが発生しました', 'error'); };
+  xhr.open('POST', '/api/episodes');
+  xhr.send(formData);
+});
+
+// ===== Edit modal =====
+let editingId = null;
+function openEditModal(ep) {
+  editingId = ep.id;
+  document.getElementById('edit-date').value = ep.date;
+  document.getElementById('edit-title').value = ep.title;
+  document.getElementById('edit-description').value = ep.description || '';
+  const spaceUrlEl = document.getElementById('edit-space-url');
+  if (spaceUrlEl) spaceUrlEl.value = ep.spaceUrl || '';
+  editModal.classList.add('open');
+}
+function closeEditModal() { editModal.classList.remove('open'); editingId = null; }
+document.getElementById('modal-close').addEventListener('click', closeEditModal);
+document.getElementById('modal-cancel').addEventListener('click', closeEditModal);
+editModal.addEventListener('click', e => { if (e.target === editModal) closeEditModal(); });
+
+document.getElementById('modal-save').addEventListener('click', async () => {
+  const date = document.getElementById('edit-date').value.trim();
+  const title = document.getElementById('edit-title').value.trim();
+  const description = document.getElementById('edit-description').value.trim();
+  const spaceUrl = document.getElementById('edit-space-url')?.value.trim() || '';
+  if (!date) return showToast('配信日を入力してください', 'error');
+  if (!title) return showToast('タイトルを入力してください', 'error');
+
+  const btn = document.getElementById('modal-save');
+  btn.disabled = true; btn.textContent = '保存中…';
+  try {
+    const res = await fetch(`/api/episodes/${editingId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, date, description, spaceUrl })
+    });
+    if (res.status === 401) { window.location.href = '/login.html'; return; }
+    if (!res.ok) throw new Error((await res.json()).error);
+    closeEditModal();
+    showToast('保存しました！', 'success');
+    loadEpisodes();
+  } catch (err) {
+    showToast(err.message || '保存に失敗しました', 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = '保存する';
+  }
+});
+
+// ===== Load episodes =====
+function formatDate(d) { const [y,m,day]=d.split('-'); return `${y}年${parseInt(m)}月${parseInt(day)}日`; }
+
+async function loadEpisodes() {
+  try {
+    const res = await fetch('/api/episodes');
+    const episodes = await res.json();
+    if (!episodes.length) { recentList.innerHTML = '<p style="color:var(--muted);font-size:14px;">まだエピソードがありません。</p>'; return; }
+    const total = episodes.length;
+    recentList.innerHTML = episodes.map((ep, i) => {
+      const num = total - i;
+      const color = BADGE_COLORS[(num-1) % BADGE_COLORS.length];
+      return `
+        <div class="recent-item" style="--badge-color:${color}">
+          <div class="recent-item-body">
+            <div class="recent-item-date">第${num}回 · ${formatDate(ep.date)}</div>
+            <div class="recent-item-title">${escHtml(ep.title)}</div>
+          </div>
+          <button class="recent-item-edit" title="編集" data-id="${ep.id}">✏️</button>
+        </div>`;
+    }).join('');
+
+    recentList.querySelectorAll('.recent-item-edit').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const ep = episodes.find(e => e.id === btn.dataset.id);
+        if (ep) openEditModal(ep);
+      });
+    });
+  } catch { recentList.innerHTML = '<p style="color:var(--muted);font-size:14px;">読み込みに失敗しました</p>'; }
+}
+
+// ===== Toast =====
+let toastTimer;
+function showToast(msg, type='success') {
+  toast.textContent = type === 'success' ? '✓ ' + msg : '✕ ' + msg;
+  toast.className = `toast ${type} show`;
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
+}
+function escHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+loadEpisodes();
+
+// ===== Speaker photo upload =====
+async function uploadPhoto(role, name) {
+  const input = document.getElementById(`photo-input-${role}`);
+  if (!input || !input.files[0]) { showToast('画像ファイルを選択してください', 'error'); return; }
+  const file = input.files[0];
+  if (file.size > 10 * 1024 * 1024) { showToast('ファイルサイズは10MB以下にしてください', 'error'); return; }
+
+  const formData = new FormData();
+  formData.append('profileId', role);  // must come before file
+  formData.append('name', name);
+  formData.append('image', file);
+
+  const btn = document.querySelector(`button[onclick="uploadPhoto('${role}', '${name}')"]`);
+  if (btn) { btn.disabled = true; btn.textContent = 'アップロード中…'; }
+
+  try {
+    const res = await fetch('/api/upload-image', { method: 'POST', body: formData });
+    if (res.status === 401) { window.location.href = '/login.html'; return; }
+    if (!res.ok) throw new Error((await res.json()).error || 'アップロード失敗');
+    const { url } = await res.json();
+    const img = document.getElementById(`photo-${role}`);
+    const noPhoto = document.getElementById(`no-photo-${role}`);
+    if (img) { img.src = url + '?t=' + Date.now(); img.style.display = 'block'; }
+    if (noPhoto) noPhoto.style.display = 'none';
+    showToast('写真をアップロードしました！', 'success');
+    input.value = '';
+  } catch (err) {
+    showToast(err.message || 'アップロードに失敗しました', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '📷 写真をアップロード'; }
+  }
+}
+
+// ===== Profile management =====
+async function loadProfiles() {
+  try {
+    const res = await fetch('/api/profiles');
+    if (!res.ok) return;
+    const profiles = await res.json();
+    for (const p of profiles) {
+      const roleEl = document.getElementById(`profile-role-${p.id}`);
+      const nameEl = document.getElementById(`profile-name-${p.id}`);
+      const kanaEl = document.getElementById(`profile-kana-${p.id}`);
+      const bioEl  = document.getElementById(`profile-bio-${p.id}`);
+      if (roleEl) roleEl.value = p.role || '';
+      if (nameEl) nameEl.value = p.name || '';
+      if (kanaEl) kanaEl.value = p.kana || '';
+      if (bioEl)  bioEl.value  = p.bio  || '';
+      // Update photo preview
+      if (p.photo) {
+        const img = document.getElementById(`photo-${p.id}`);
+        if (img) { img.src = p.photo; img.style.display = 'block'; }
+        const noPhoto = document.getElementById(`no-photo-${p.id}`);
+        if (noPhoto) noPhoto.style.display = 'none';
+      }
+    }
+  } catch {}
+}
+
+async function saveProfile(role) {
+  const role_val = document.getElementById(`profile-role-${role}`)?.value.trim();
+  const name     = document.getElementById(`profile-name-${role}`)?.value.trim();
+  const kana     = document.getElementById(`profile-kana-${role}`)?.value.trim();
+  const bio      = document.getElementById(`profile-bio-${role}`)?.value.trim();
+
+  if (!name) return showToast('名前を入力してください', 'error');
+  if (!role_val) return showToast('役割ラベルを入力してください', 'error');
+
+  const btn = document.querySelector(`#profile-card-${role} .btn-submit`) ||
+    [...document.querySelectorAll('.btn-submit')].find(b => b.getAttribute('onclick') === `saveProfile('${role}')`);
+  if (btn) { btn.disabled = true; btn.textContent = '保存中…'; }
+
+  try {
+    const res = await fetch(`/api/profiles/${role}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ role: role_val, name, kana, bio })
+    });
+    if (res.status === 401) { window.location.href = '/login.html'; return; }
+    if (!res.ok) throw new Error((await res.json()).error || '保存失敗');
+    showToast('プロフィールを保存しました！', 'success');
+  } catch (err) {
+    showToast(err.message || '保存に失敗しました', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '保存する'; }
+  }
+}
+
+loadProfiles();
+
+// ===== Site settings =====
+async function loadSettings() {
+  try {
+    const res = await fetch('/api/settings');
+    if (!res.ok) return;
+    const settings = await res.json();
+    const el = document.getElementById('setting-hero-desc');
+    if (el && settings.heroDescription) el.value = settings.heroDescription;
+  } catch {}
+}
+
+async function saveSettings() {
+  const heroDescription = document.getElementById('setting-hero-desc')?.value.trim();
+  const btn = document.querySelector('button[onclick="saveSettings()"]');
+  if (btn) { btn.disabled = true; btn.textContent = '保存中…'; }
+  try {
+    const res = await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ heroDescription })
+    });
+    if (res.status === 401) { window.location.href = '/login.html'; return; }
+    if (!res.ok) throw new Error((await res.json()).error || '保存失敗');
+    showToast('設定を保存しました！', 'success');
+  } catch (err) {
+    showToast(err.message || '保存に失敗しました', 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '保存する'; }
+  }
+}
+
+loadSettings();

@@ -1,0 +1,5 @@
+{
+  "username": "admin",
+  "password": "パスワードをここに設定",
+  "sessionSecret": "ランダムな長い文字列をここに設定"
+}
