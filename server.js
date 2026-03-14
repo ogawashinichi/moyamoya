@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 const DATA_DIR = path.join(__dirname, 'data');
 const EPISODES_FILE = path.join(__dirname, 'episodes.json');
 const CONFIG_FILE = path.join(__dirname, 'admin.config.json');
@@ -14,7 +14,14 @@ const SETTINGS_FILE = path.join(__dirname, 'settings.json');
 
 // ===== Load admin config =====
 let adminConfig;
-if (fs.existsSync(CONFIG_FILE)) {
+if (process.env.ADMIN_USERNAME) {
+  // 環境変数から読み込む（Renderなどのクラウド環境）
+  adminConfig = {
+    username: process.env.ADMIN_USERNAME,
+    password: process.env.ADMIN_PASSWORD,
+    sessionSecret: process.env.SESSION_SECRET || 'change-this-secret'
+  };
+} else if (fs.existsSync(CONFIG_FILE)) {
   adminConfig = JSON.parse(fs.readFileSync(CONFIG_FILE, 'utf-8'));
 } else {
   adminConfig = { username: 'admin', password: 'password', sessionSecret: 'change-this-secret' };
