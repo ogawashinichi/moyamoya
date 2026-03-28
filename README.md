@@ -3,8 +3,7 @@
 東京新聞デジタル編集部の記者・デスクによる音声アーカイブサイトです。
 X スペースまたは Spotify のリンクを登録して公開できます。
 
-🌐 **公開サイト：** https://moyamoya.onrender.com
-*(Renderにデプロイ後、URLを更新してください)*
+🌐 **公開サイト：** [https://moyamoya.onrender.com](https://moyamoya-pefh.onrender.com/)
 
 ---
 
