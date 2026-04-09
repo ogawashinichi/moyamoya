@@ -64,6 +64,8 @@ function openEditModal(ep) {
   document.getElementById('edit-description').value = ep.description || '';
   const spaceUrlEl = document.getElementById('edit-space-url');
   if (spaceUrlEl) spaceUrlEl.value = ep.spaceUrl || '';
+  const spotifyUrlEl = document.getElementById('edit-spotify-url');
+  if (spotifyUrlEl) spotifyUrlEl.value = ep.spotifyUrl || '';
   editModal.classList.add('open');
 }
 function closeEditModal() { editModal.classList.remove('open'); editingId = null; }
@@ -76,6 +78,7 @@ document.getElementById('modal-save').addEventListener('click', async () => {
   const title = document.getElementById('edit-title').value.trim();
   const description = document.getElementById('edit-description').value.trim();
   const spaceUrl = document.getElementById('edit-space-url')?.value.trim() || '';
+  const spotifyUrl = document.getElementById('edit-spotify-url')?.value.trim() || '';
   if (!date || !title) return showToast('日付とタイトルは必須です', 'error');
   const btn = document.getElementById('modal-save');
   btn.disabled = true; btn.textContent = '保存中…';
@@ -83,7 +86,7 @@ document.getElementById('modal-save').addEventListener('click', async () => {
     const res = await fetch(`/api/episodes/${editingId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, date, description, spaceUrl })
+      body: JSON.stringify({ title, date, description, spaceUrl, spotifyUrl })
     });
     if (!res.ok) throw new Error((await res.json()).error);
     closeEditModal();
@@ -205,6 +208,7 @@ loadSettings();
 async function submitVoice(e) {
   e.preventDefault();
   const name    = document.getElementById('voice-name')?.value.trim() || '';
+  const contact = document.getElementById('voice-contact')?.value.trim() || '';
   const message = document.getElementById('voice-message')?.value.trim() || '';
   if (!message) return;
   const btn = document.getElementById('voice-submit');
@@ -214,7 +218,7 @@ async function submitVoice(e) {
     const res = await fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, message })
+      body: JSON.stringify({ name, contact, message })
     });
     const data = await res.json();
     if (!res.ok) { alert(data.error || '送信に失敗しました'); btn.disabled = false; btn.textContent = '送信する'; return; }

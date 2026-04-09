@@ -65,7 +65,6 @@
       </div>
     </section>
 
-
     <section class="voice-section">
       <div class="container">
         <div class="section-header">
@@ -79,6 +78,10 @@
             <div class="form-group">
               <label for="voice-name">お名前（任意）</label>
               <input type="text" id="voice-name" maxlength="50" placeholder="匿名可">
+            </div>
+            <div class="form-group">
+              <label for="voice-contact">メールアドレスまたは携帯電話（任意）</label>
+              <input type="text" id="voice-contact" maxlength="100" placeholder="返信希望の場合はご記入ください">
             </div>
             <div class="form-group">
               <label for="voice-message">メッセージ<span class="required">*</span></label>
@@ -141,7 +144,11 @@
       <div class="form-group">
         <label for="edit-space-url">XスペースURL（任意）</label>
         <input type="url" id="edit-space-url" placeholder="https://x.com/i/spaces/…">
-        <div class="form-hint">入力するとカードにリンクボタンが表示されます</div>
+      </div>
+      <div class="form-group">
+        <label for="edit-spotify-url">SpotifyURL（任意）</label>
+        <input type="url" id="edit-spotify-url" placeholder="https://open.spotify.com/episode/…">
+        <div class="form-hint">両方入力するとカードに2つのリンクボタンが並んで表示されます</div>
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" id="modal-cancel">キャンセル</button>
