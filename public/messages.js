@@ -21,10 +21,14 @@ function showToast(msg, type='success') {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('toast--show'), 3000);
 }
+function getYearMonth(iso) {
+  return iso.slice(0, 7); // "2026-08"
+}
 
 // ===== State =====
 let allMessages = [];
 let currentFilter = 'all';
+let currentMonth = null; // null = all months
 
 // ===== Load =====
 async function loadMessages() {
@@ -33,13 +37,19 @@ async function loadMessages() {
     const res = await fetch('/api/messages');
     if (!res.ok) { list.innerHTML = '<p class="loading-text">ログインが必要です</p>'; return; }
     allMessages = await res.json();
-    updateBadge();
-    renderMessages();
+    refresh();
   } catch {
     list.innerHTML = '<p class="loading-text">読み込みに失敗しました</p>';
   }
 }
 
+function refresh() {
+  updateBadge();
+  buildMonthNav();
+  renderMessages();
+}
+
+// ===== Badge =====
 function updateBadge() {
   const unread = allMessages.filter(m => !m.read).length;
   const badge = document.getElementById('msg-unread-badge');
@@ -51,15 +61,73 @@ function updateBadge() {
   if (markAllBtn) markAllBtn.style.display = unread > 0 ? 'inline-block' : 'none';
 }
 
+// ===== Month Nav =====
+function buildMonthNav() {
+  const nav = document.getElementById('month-nav');
+  if (!nav) return;
+
+  const monthMap = new Map();
+  for (const m of allMessages) {
+    const ym = getYearMonth(m.createdAt);
+    if (!monthMap.has(ym)) monthMap.set(ym, { total: 0, unread: 0 });
+    const g = monthMap.get(ym);
+    g.total++;
+    if (!m.read) g.unread++;
+  }
+  const sorted = [...monthMap.entries()].sort((a, b) => b[0].localeCompare(a[0]));
+
+  const yearMap = new Map();
+  for (const [ym, counts] of sorted) {
+    const year = ym.slice(0, 4);
+    if (!yearMap.has(year)) yearMap.set(year, []);
+    yearMap.get(year).push([ym, counts]);
+  }
+
+  const totalAll = allMessages.length;
+  const unreadAll = allMessages.filter(m => !m.read).length;
+
+  let html = `<button class="msg-month-item ${currentMonth === null ? 'active' : ''}" onclick="selectMonth(null)">
+    <span>すべて</span>
+    <span class="msg-month-count">${totalAll}件${unreadAll ? `<em class="msg-month-unread"> 未読${unreadAll}</em>` : ''}</span>
+  </button>`;
+
+  for (const [year, months] of yearMap) {
+    html += `<div class="msg-month-year-label">${year}年</div>`;
+    for (const [ym, counts] of months) {
+      const monthNum = parseInt(ym.slice(5));
+      html += `<button class="msg-month-item ${currentMonth === ym ? 'active' : ''}" onclick="selectMonth('${ym}')">
+        <span>${monthNum}月</span>
+        <span class="msg-month-count">${counts.total}件${counts.unread ? `<em class="msg-month-unread"> 未読${counts.unread}</em>` : ''}</span>
+      </button>`;
+    }
+  }
+
+  nav.innerHTML = html;
+}
+
+function selectMonth(ym) {
+  currentMonth = ym;
+  buildMonthNav();
+  renderMessages();
+}
+
+// ===== Render =====
 function renderMessages() {
   const list = document.getElementById('messages-list');
-  const filtered = allMessages.filter(m => {
+  let filtered = allMessages.filter(m => {
     if (currentFilter === 'unread') return !m.read;
     if (currentFilter === 'read') return m.read;
     return true;
   });
+  if (currentMonth !== null) {
+    filtered = filtered.filter(m => getYearMonth(m.createdAt) === currentMonth);
+  }
   if (!filtered.length) {
-    list.innerHTML = `<p class="loading-text">${currentFilter === 'unread' ? '未読メッセージはありません' : currentFilter === 'read' ? '既読メッセージはありません' : 'まだメッセージはありません'}</p>`;
+    const emptyMsg = currentFilter === 'unread' ? '未読メッセージはありません'
+      : currentFilter === 'read' ? '既読メッセージはありません'
+      : currentMonth ? 'この期間のメッセージはありません'
+      : 'まだメッセージはありません';
+    list.innerHTML = `<p class="loading-text">${emptyMsg}</p>`;
     return;
   }
   list.innerHTML = filtered.map(m => `
@@ -90,8 +158,7 @@ async function markRead(id) {
   await fetch(`/api/messages/${id}/read`, { method: 'PATCH' });
   const m = allMessages.find(m => m.id === id);
   if (m) m.read = true;
-  updateBadge();
-  renderMessages();
+  refresh();
   showToast('既読にしました');
 }
 
@@ -99,8 +166,7 @@ async function markAllRead() {
   const unread = allMessages.filter(m => !m.read);
   await Promise.all(unread.map(m => fetch(`/api/messages/${m.id}/read`, { method: 'PATCH' })));
   allMessages.forEach(m => m.read = true);
-  updateBadge();
-  renderMessages();
+  refresh();
   showToast('すべて既読にしました');
 }
 
@@ -108,8 +174,7 @@ async function deleteMessage(id) {
   if (!confirm('このメッセージを削除しますか？')) return;
   await fetch(`/api/messages/${id}`, { method: 'DELETE' });
   allMessages = allMessages.filter(m => m.id !== id);
-  updateBadge();
-  renderMessages();
+  refresh();
   showToast('削除しました');
 }
 

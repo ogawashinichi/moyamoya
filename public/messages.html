@@ -53,8 +53,14 @@
         <button class="msg-mark-all-btn" onclick="markAllRead()" id="btn-mark-all">すべて既読にする</button>
       </div>
 
-      <div id="messages-list">
-        <p class="loading-text">読み込み中…</p>
+      <div class="msg-layout">
+        <aside class="msg-sidebar">
+          <div class="msg-sidebar-title">期間</div>
+          <nav class="msg-month-nav" id="month-nav"></nav>
+        </aside>
+        <div class="msg-content" id="messages-list">
+          <p class="loading-text">読み込み中…</p>
+        </div>
       </div>
 
     </div>

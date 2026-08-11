@@ -946,6 +946,54 @@ body.is-admin .episode-edit-btn { display: flex; }
 }
 .msg-mark-all-btn:hover { transform: translate(-1px,-1px); box-shadow: 2px 2px 0px var(--text); }
 
+/* ===== Messages month sidebar layout ===== */
+.msg-layout {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+.msg-sidebar {
+  width: 148px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
+}
+.msg-sidebar-title {
+  font-size: 11px; font-weight: 900; font-family: var(--font-heading);
+  color: var(--muted); letter-spacing: 0.06em;
+  text-transform: uppercase; margin-bottom: 8px; padding-left: 4px;
+}
+.msg-month-nav { display: flex; flex-direction: column; gap: 2px; }
+.msg-month-year-label {
+  font-size: 11px; font-weight: 900; font-family: var(--font-heading);
+  color: var(--muted); padding: 10px 4px 3px; letter-spacing: 0.03em;
+}
+.msg-month-item {
+  display: flex; justify-content: space-between; align-items: center;
+  width: 100%; gap: 6px;
+  font-size: 13px; font-weight: 800; font-family: var(--font-heading);
+  padding: 6px 10px; border-radius: 8px;
+  border: 2px solid transparent; background: transparent;
+  cursor: pointer; text-align: left; transition: background 0.15s, border-color 0.15s;
+}
+.msg-month-item:hover { background: var(--bg); border-color: var(--text); }
+.msg-month-item.active { background: var(--text); color: white; border-color: var(--text); }
+.msg-month-count {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  white-space: nowrap; flex-shrink: 0;
+}
+.msg-month-item.active .msg-month-count { color: rgba(255,255,255,0.65); }
+.msg-month-unread { font-style: normal; font-weight: 900; color: var(--pop-pink); }
+.msg-month-item.active .msg-month-unread { color: #ffb3cc; }
+.msg-content { flex: 1; min-width: 0; }
+@media (max-width: 640px) {
+  .msg-layout { flex-direction: column; }
+  .msg-sidebar { width: 100%; position: static; }
+  .msg-month-nav { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  .msg-month-year-label { display: none; }
+  .msg-month-item { width: auto; padding: 5px 10px; }
+}
+
 /* ===== Admin nav tabs ===== */
 .admin-nav-tabs {
   display: flex; flex-wrap: wrap; gap: 8px;
