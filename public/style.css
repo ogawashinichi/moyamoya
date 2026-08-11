@@ -15,7 +15,7 @@
   --pop-shadow: 6px 6px 0px rgba(45, 49, 66, 0.15);
   --radius: 24px;
   --radius-sm: 14px;
-  --font: 'M PLUS Rounded 1c', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
+  --font: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
   --font-heading: 'Zen Maru Gothic', 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
   --transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
