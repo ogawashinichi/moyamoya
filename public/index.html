@@ -4,6 +4,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>新聞記者のもやもや話 — 記者とデスクが語り合う</title>
+  <meta property="og:title" content="新聞記者のもやもや話">
+  <meta property="og:description" content="東京新聞デジタル編集部の記者とデスクが日々感じている「もやもや」を語り合っています。取材での悩みや葛藤、ジャーナリズムの課題、社会の問いかけ。">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://moyamoya-pefh.onrender.com/">
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="新聞記者のもやもや話">
+  <meta name="twitter:description" content="東京新聞デジタル編集部の記者とデスクが日々感じている「もやもや」を語り合っています。取材での悩みや葛藤、ジャーナリズムの課題、社会の問いかけ。">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -44,6 +51,13 @@
       <p class="hero-desc" id="hero-desc">
         東京新聞デジタル編集部の記者とデスクが日々感じている「もやもや」を語り合っています。取材での悩みや葛藤、ジャーナリズムの課題、社会の問いかけ。過去の配信アーカイブをこちらでお聴きいただけます
       </p>
+      <div class="hero-latest" id="hero-latest" style="display:none;">
+        <a href="#episodes" class="hero-latest-link">
+          <span class="hero-latest-label">最新話</span>
+          <span class="hero-latest-info" id="hero-latest-info"></span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="16" height="16" aria-hidden="true"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+        </a>
+      </div>
     </div>
   </section>
 
@@ -96,7 +110,7 @@
       </div>
     </section>
 
-    <section class="episodes-section">
+    <section class="episodes-section" id="episodes">
       <div class="container">
         <div class="section-header">
           <h2 class="section-title">
@@ -104,11 +118,18 @@
           </h2>
           <span class="section-count" id="section-count"></span>
         </div>
+        <div class="episodes-search-wrap">
+          <svg class="episodes-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          <input type="search" id="episodes-search" class="episodes-search" placeholder="エピソードを検索…" autocomplete="off" aria-label="エピソードを検索">
+        </div>
         <div class="episodes-grid" id="episodes-grid">
           <div class="state-loading">
             <div class="spinner"></div>
             <p>読み込み中…</p>
           </div>
+        </div>
+        <div class="load-more-wrap" id="load-more-wrap" style="display:none;">
+          <button class="btn-load-more" id="btn-load-more" onclick="loadMore()">もっと見る</button>
         </div>
       </div>
     </section>

@@ -10,14 +10,26 @@ const CARD_GRADIENTS = [
 
 let allEpisodes = [];
 let isAdmin = false;
+let displayCount = 12;
+let searchQuery = '';
 
+// ===== Utils =====
 function getMimeType(filename) {
   const ext = filename.split('.').pop().toLowerCase();
   return { m4a:'audio/mp4', mp4:'audio/mp4', mp3:'audio/mpeg', wav:'audio/wav', ogg:'audio/ogg', aac:'audio/aac' }[ext] || 'audio/mpeg';
 }
 function formatDate(d) { const [y,m,day]=d.split('-'); return `${y}年${parseInt(m)}月${parseInt(day)}日`; }
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toSpotifyEmbedUrl(url) {
+  return url.replace('open.spotify.com/', 'open.spotify.com/embed/').split('?')[0];
+}
+function xAccountUrl(val) {
+  if (!val) return '#';
+  if (val.startsWith('http')) return val;
+  return `https://x.com/${val.replace(/^@/, '')}`;
+}
 
+// ===== Episode Card =====
 function renderEpisode(episode, index, total) {
   const num = total - index;
   const ci = (num - 1) % BADGE_COLORS.length;
@@ -38,11 +50,7 @@ function renderEpisode(episode, index, total) {
     ${episode.description ? `<div class="episode-description">${escHtml(episode.description)}</div>` : ''}
     <div class="episode-player">
       ${episode.spotifyUrl
-        ? `<iframe
-            src="${escHtml(toSpotifyEmbedUrl(episode.spotifyUrl))}"
-            width="100%" height="152" frameborder="0"
-            allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy" style="border-radius:10px;"></iframe>`
+        ? `<iframe src="${escHtml(toSpotifyEmbedUrl(episode.spotifyUrl))}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:10px;"></iframe>`
         : episode.spaceUrl
           ? `<a class="space-link-btn" href="${escHtml(episode.spaceUrl)}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xスペースで聴く</a>`
           : `<audio controls preload="none"><source src="/data/${encodeURIComponent(episode.filename)}" type="${getMimeType(episode.filename)}"></audio>`}
@@ -53,6 +61,100 @@ function renderEpisode(episode, index, total) {
   }
   return card;
 }
+
+// ===== Hero Latest =====
+function updateHeroLatest() {
+  const el = document.getElementById('hero-latest');
+  const info = document.getElementById('hero-latest-info');
+  if (!el || !info || !allEpisodes.length) return;
+  const ep = allEpisodes[0];
+  const num = allEpisodes.length;
+  const titleShort = ep.title.length > 24 ? ep.title.slice(0, 24) + '…' : ep.title;
+  info.textContent = `第${num}回 · ${formatDate(ep.date)} 「${titleShort}」`;
+  el.style.display = 'block';
+}
+
+// ===== Render Episodes (search + pagination) =====
+function renderEpisodes() {
+  const grid = document.getElementById('episodes-grid');
+  const sectionCount = document.getElementById('section-count');
+  const loadMoreWrap = document.getElementById('load-more-wrap');
+  const loadMoreBtn = document.getElementById('btn-load-more');
+
+  let filtered = allEpisodes;
+  if (searchQuery) {
+    const q = searchQuery.toLowerCase();
+    filtered = allEpisodes.filter(ep =>
+      ep.title.toLowerCase().includes(q) ||
+      (ep.description && ep.description.toLowerCase().includes(q))
+    );
+  }
+
+  if (sectionCount) {
+    sectionCount.textContent = searchQuery
+      ? `${filtered.length} / 全${allEpisodes.length}件`
+      : `全${allEpisodes.length}件`;
+  }
+
+  // When searching show all matches; otherwise paginate
+  const toShow = searchQuery ? filtered : filtered.slice(0, displayCount);
+
+  grid.innerHTML = '';
+  if (!filtered.length) {
+    const msg = searchQuery
+      ? `「${escHtml(searchQuery)}」に一致するエピソードはありません`
+      : 'まだエピソードがありません。';
+    grid.innerHTML = `<div class="state-empty"><p>${msg}</p></div>`;
+    if (loadMoreWrap) loadMoreWrap.style.display = 'none';
+    return;
+  }
+
+  toShow.forEach(ep => {
+    const idx = allEpisodes.indexOf(ep);
+    grid.appendChild(renderEpisode(ep, idx, allEpisodes.length));
+  });
+
+  if (loadMoreWrap && loadMoreBtn) {
+    const hasMore = !searchQuery && filtered.length > displayCount;
+    loadMoreWrap.style.display = hasMore ? 'block' : 'none';
+    if (hasMore) {
+      loadMoreBtn.textContent = `もっと見る（残り${filtered.length - displayCount}件）`;
+    }
+  }
+}
+
+function loadMore() {
+  displayCount += 12;
+  renderEpisodes();
+}
+
+// ===== Load =====
+async function loadEpisodes() {
+  const grid = document.getElementById('episodes-grid');
+  try {
+    const [epRes, authRes] = await Promise.all([fetch('/api/episodes'), fetch('/api/auth/check')]);
+    allEpisodes = await epRes.json();
+    isAdmin = (await authRes.json()).authenticated;
+    if (isAdmin) document.body.classList.add('is-admin');
+    displayCount = 12;
+    updateHeroLatest();
+    renderEpisodes();
+  } catch {
+    grid.innerHTML = '<div class="state-empty"><p>読み込みに失敗しました。</p></div>';
+  }
+}
+
+// ===== Search =====
+const searchInput = document.getElementById('episodes-search');
+if (searchInput) {
+  searchInput.addEventListener('input', e => {
+    searchQuery = e.target.value.trim();
+    displayCount = 12;
+    renderEpisodes();
+  });
+}
+
+loadEpisodes();
 
 // ===== Edit Modal =====
 let editingId = null;
@@ -106,48 +208,8 @@ function showToast(msg, type='success') {
   clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove('show'), 3500);
 }
 
-// ===== Load =====
-async function loadEpisodes() {
-  const grid = document.getElementById('episodes-grid');
-  const countEl = document.getElementById('episode-count');
-  const sectionCount = document.getElementById('section-count');
-  try {
-    const [epRes, authRes] = await Promise.all([fetch('/api/episodes'), fetch('/api/auth/check')]);
-    allEpisodes = await epRes.json();
-    isAdmin = (await authRes.json()).authenticated;
-    if (isAdmin) document.body.classList.add('is-admin');
-    grid.innerHTML = '';
-    if (!allEpisodes.length) {
-      grid.innerHTML = '<div class="state-empty"><p>まだエピソードがありません。</p></div>';
-      return;
-    }
-    if (countEl) countEl.textContent = allEpisodes.length;
-    sectionCount.textContent = `全${allEpisodes.length}件`;
-    allEpisodes.forEach((ep, i) => grid.appendChild(renderEpisode(ep, i, allEpisodes.length)));
-  } catch {
-    grid.innerHTML = '<div class="state-empty"><p>読み込みに失敗しました。</p></div>';
-  }
-}
-
-loadEpisodes();
-
-function toSpotifyEmbedUrl(url) {
-  // https://open.spotify.com/episode/ID → https://open.spotify.com/embed/episode/ID
-  return url.replace('open.spotify.com/', 'open.spotify.com/embed/').split('?')[0];
-}
-
-function xAccountUrl(val) {
-  if (!val) return '#';
-  if (val.startsWith('http')) return val;
-  const handle = val.replace(/^@/, '');
-  return `https://x.com/${handle}`;
-}
-
 // ===== Speakers =====
-const AVATAR_STYLES = {
-  reporter: 'speaker-avatar--reporter',
-  desk:     'speaker-avatar--desk',
-};
+const AVATAR_STYLES = { reporter: 'speaker-avatar--reporter', desk: 'speaker-avatar--desk' };
 
 function renderSpeaker(p) {
   const avatarClass = AVATAR_STYLES[p.id] || 'speaker-avatar--reporter';
@@ -191,7 +253,7 @@ async function loadProfiles() {
 
 loadProfiles();
 
-// ===== Site settings =====
+// ===== Settings =====
 async function loadSettings() {
   try {
     const res = await fetch('/api/settings');
@@ -212,8 +274,7 @@ async function submitVoice(e) {
   const message = document.getElementById('voice-message')?.value.trim() || '';
   if (!message) return;
   const btn = document.getElementById('voice-submit');
-  btn.disabled = true;
-  btn.textContent = '送信中…';
+  btn.disabled = true; btn.textContent = '送信中…';
   try {
     const res = await fetch('/api/messages', {
       method: 'POST',
@@ -226,7 +287,6 @@ async function submitVoice(e) {
     document.getElementById('voice-thanks').style.display = 'block';
   } catch {
     alert('送信に失敗しました。もう一度お試しください。');
-    btn.disabled = false;
-    btn.textContent = '送信する';
+    btn.disabled = false; btn.textContent = '送信する';
   }
 }
