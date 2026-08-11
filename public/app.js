@@ -66,11 +66,12 @@ function renderEpisode(episode, index, total) {
 function updateHeroLatest() {
   const el = document.getElementById('hero-latest');
   const info = document.getElementById('hero-latest-info');
+  const meta = document.getElementById('hero-latest-meta');
   if (!el || !info || !allEpisodes.length) return;
   const ep = allEpisodes[0];
   const num = allEpisodes.length;
-  const titleShort = ep.title.length > 24 ? ep.title.slice(0, 24) + '…' : ep.title;
-  info.textContent = `第${num}回 · ${formatDate(ep.date)} 「${titleShort}」`;
+  if (meta) meta.textContent = `第${num}回 · ${formatDate(ep.date)}`;
+  info.textContent = ep.title;
   el.style.display = 'block';
 }
 

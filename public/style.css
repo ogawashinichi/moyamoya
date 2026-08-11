@@ -199,27 +199,34 @@ a { color: inherit; text-decoration: none; }
 /* ===== Hero Latest Episode (案D) ===== */
 .hero-latest { margin-top: 0; }
 .hero-latest-link {
-  display: inline-flex; align-items: center; gap: 10px;
+  display: inline-flex; align-items: center; gap: 14px;
   background: rgba(255,255,255,0.92);
-  border: 3px solid var(--text); border-radius: 50px;
-  padding: 10px 18px; box-shadow: 4px 4px 0px var(--text);
+  border: 3px solid var(--text); border-radius: var(--radius-sm);
+  padding: 14px 20px; box-shadow: 4px 4px 0px var(--text);
   text-decoration: none; color: var(--text);
-  transition: var(--transition); max-width: 100%;
+  transition: var(--transition); max-width: 680px; width: 100%;
 }
 .hero-latest-link:hover { transform: translate(-2px,-2px); box-shadow: 6px 6px 0px var(--text); }
 .hero-latest-label {
   font-size: 11px; font-weight: 900; font-family: var(--font-heading);
   background: var(--pop-pink); color: white;
-  padding: 3px 10px; border-radius: 20px;
+  padding: 4px 12px; border-radius: 20px;
   border: 2px solid var(--text); white-space: nowrap; flex-shrink: 0;
+  align-self: flex-start; margin-top: 2px;
 }
-.hero-latest-info {
-  font-size: 13px; font-weight: 700; font-family: var(--font-heading);
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0;
+.hero-latest-body {
+  flex: 1; min-width: 0;
+  display: flex; flex-direction: column; gap: 4px;
 }
-@media (max-width: 600px) {
-  .hero-latest-info { max-width: 200px; }
+.hero-latest-meta {
+  font-size: 11px; font-weight: 700; color: var(--muted);
+  font-family: var(--font-heading);
 }
+.hero-latest-title {
+  font-size: 14px; font-weight: 800; line-height: 1.5;
+  font-family: var(--font-heading);
+}
+.hero-latest-arrow { flex-shrink: 0; color: var(--muted); align-self: center; }
 .hero-stats { display: flex; gap: 32px; }
 .stat { display: flex; flex-direction: column; gap: 3px; }
 .stat-num {
