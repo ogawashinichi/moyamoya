@@ -75,6 +75,19 @@ app.use(session({
     maxAge: 8 * 60 * 60 * 1000 // 8 hours
   }
 }));
+// ===== Protected HTML pages (server-side auth guard) =====
+// Must be before express.static so auth check runs before serving the file
+const PROTECTED_PAGES = ['/admin.html', '/messages.html', '/settings.html'];
+PROTECTED_PAGES.forEach(page => {
+  app.get(page, (req, res, next) => {
+    if (req.session && req.session.authenticated) {
+      res.setHeader('Cache-Control', 'no-store');
+      return next();
+    }
+    res.redirect('/login.html');
+  });
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== Auth middleware =====
