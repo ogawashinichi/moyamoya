@@ -137,6 +137,8 @@ async function loadEpisodes() {
     allEpisodes = await epRes.json();
     isAdmin = (await authRes.json()).authenticated;
     if (isAdmin) document.body.classList.add('is-admin');
+    const adminBtn = document.getElementById('nav-admin-btn');
+    if (adminBtn) adminBtn.style.display = isAdmin ? '' : 'none';
     displayCount = 12;
     updateHeroLatest();
     renderEpisodes();
@@ -156,6 +158,14 @@ if (searchInput) {
 }
 
 loadEpisodes();
+
+// ===== Scroll to top =====
+const scrollTopBtn = document.getElementById('btn-scroll-top');
+if (scrollTopBtn) {
+  window.addEventListener('scroll', () => {
+    scrollTopBtn.classList.toggle('visible', window.scrollY > 400);
+  }, { passive: true });
+}
 
 // ===== Edit Modal =====
 let editingId = null;

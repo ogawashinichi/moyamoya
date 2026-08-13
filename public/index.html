@@ -34,7 +34,7 @@
         </a>
         <nav class="site-nav">
           <a href="/" class="nav-link active">アーカイブ</a>
-          <a href="/admin.html" class="nav-btn">＋ 管理</a>
+          <a href="/admin.html" class="nav-btn" id="nav-admin-btn" style="display:none;">＋ 管理</a>
         </nav>
       </div>
     </div>
@@ -180,6 +180,9 @@
       </div>
     </div>
   </div>
+
+  <!-- Scroll to top -->
+  <button class="btn-scroll-top" id="btn-scroll-top" aria-label="先頭へ戻る" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 
   <!-- Toast -->
   <div class="toast" id="toast" role="alert" aria-live="polite"></div>

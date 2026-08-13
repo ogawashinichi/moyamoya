@@ -821,6 +821,34 @@ body.is-admin .episode-edit-btn { display: flex; }
   border: 2px solid var(--text);
 }
 
+/* ===== Scroll to top ===== */
+.btn-scroll-top {
+  position: fixed;
+  bottom: 80px;
+  right: 28px;
+  width: 48px;
+  height: 48px;
+  background: var(--pop-pink);
+  color: white;
+  border: 3px solid var(--text);
+  border-radius: 50%;
+  box-shadow: 4px 4px 0px var(--text);
+  font-size: 20px;
+  font-weight: 900;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  transition: transform 0.15s, box-shadow 0.15s;
+  line-height: 1;
+}
+.btn-scroll-top:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px var(--text);
+}
+.btn-scroll-top.visible { display: flex; }
+
 /* ===== Toast ===== */
 .toast {
   position: fixed; bottom: 32px; left: 50%;
