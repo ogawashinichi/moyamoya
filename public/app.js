@@ -159,6 +159,24 @@ if (searchInput) {
 
 loadEpisodes();
 
+// ===== Theme Toggle =====
+const themeToggle = document.getElementById('btn-theme-toggle');
+if (themeToggle) {
+  const isNewspaper = () => document.documentElement.getAttribute('data-theme') === 'newspaper';
+  themeToggle.textContent = isNewspaper() ? '🎨' : '📰';
+  themeToggle.addEventListener('click', () => {
+    if (isNewspaper()) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'default');
+      themeToggle.textContent = '📰';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'newspaper');
+      localStorage.setItem('theme', 'newspaper');
+      themeToggle.textContent = '🎨';
+    }
+  });
+}
+
 // ===== Scroll to top =====
 const scrollTopBtn = document.getElementById('btn-scroll-top');
 if (scrollTopBtn) {

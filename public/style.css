@@ -1103,3 +1103,117 @@ body.is-admin .episode-edit-btn { display: flex; }
 .admin-nav-tab.active { background: var(--text); color: white; }
 .admin-breadcrumb { font-size: 12px; color: var(--muted); font-weight: 700; margin-bottom: 6px; }
 .admin-breadcrumb a { color: var(--muted); text-decoration: underline; }
+
+/* ===== Theme Toggle Button ===== */
+.btn-theme-toggle {
+  background: none;
+  border: 2px solid var(--text);
+  border-radius: 20px;
+  width: 36px;
+  height: 36px;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0 var(--text);
+  flex-shrink: 0;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  line-height: 1;
+}
+.btn-theme-toggle:hover {
+  background: var(--pop-yellow);
+  transform: translate(-1px, -1px);
+  box-shadow: 3px 3px 0 var(--text);
+}
+
+/* ===== Newspaper Theme ===== */
+[data-theme="newspaper"] {
+  --bg: #f5f0e4;
+  --surface: #ffffff;
+  --text: #1a1a1a;
+  --muted: #666666;
+  --border: #cccccc;
+  --pop-border: 1px solid #1a1a1a;
+  --pop-shadow: none;
+  --radius: 0px;
+  --radius-sm: 0px;
+  --font: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
+  --font-heading: 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', Georgia, serif;
+  --transition: all 0.15s ease;
+}
+[data-theme="newspaper"] body { background-image: none; }
+
+/* Header */
+[data-theme="newspaper"] .site-header {
+  top: 0; left: 0; width: 100%;
+  border-radius: 0;
+  border: none;
+  border-bottom: 2px solid var(--text);
+  box-shadow: none;
+}
+[data-theme="newspaper"] .logo-icon { background: var(--text); box-shadow: none; border-color: var(--text); }
+[data-theme="newspaper"] .nav-link:hover,
+[data-theme="newspaper"] .nav-link.active { background: var(--text); color: #fff; }
+[data-theme="newspaper"] .nav-btn { background: var(--text); border-color: var(--text); box-shadow: none; border-radius: 0; }
+[data-theme="newspaper"] .btn-theme-toggle { border-radius: 0; box-shadow: none; }
+[data-theme="newspaper"] .btn-theme-toggle:hover { background: #e0dbd0; transform: none; box-shadow: none; }
+
+/* Hero */
+[data-theme="newspaper"] .hero { padding-top: 100px; }
+[data-theme="newspaper"] .hero-blob { display: none; }
+[data-theme="newspaper"] .hero-title { text-shadow: none; }
+[data-theme="newspaper"] .hero-title .highlight { color: var(--text); }
+[data-theme="newspaper"] .hero-title .highlight::after { display: none; }
+[data-theme="newspaper"] .hero-latest-link { box-shadow: none; border-width: 1px; }
+[data-theme="newspaper"] .hero-latest-link:hover { transform: none; box-shadow: none; }
+[data-theme="newspaper"] .hero-latest-label { background: var(--text); border-color: var(--text); border-radius: 0; }
+
+/* Speakers */
+[data-theme="newspaper"] .speaker-card:hover { transform: none; box-shadow: none; }
+[data-theme="newspaper"] .speaker-avatar { box-shadow: none; border-color: #cccccc; }
+[data-theme="newspaper"] .speaker-avatar--reporter { background: #e8e4d8; }
+[data-theme="newspaper"] .speaker-avatar--desk { background: #d8d4c8; }
+[data-theme="newspaper"] .speaker-role { background: var(--text); border: none; box-shadow: none; border-radius: 0; transform: none; }
+[data-theme="newspaper"] .speaker-role--desk { background: #444; }
+[data-theme="newspaper"] .speaker-link { box-shadow: none; }
+[data-theme="newspaper"] .speaker-link:hover { transform: none; box-shadow: none; }
+[data-theme="newspaper"] .speaker-link--web { background: #e8e4d8; }
+
+/* Section titles */
+[data-theme="newspaper"] .section-title::after { display: none; }
+[data-theme="newspaper"] .section-count { border-radius: 0; box-shadow: none; border-width: 1px; }
+
+/* Search */
+[data-theme="newspaper"] .episodes-search { box-shadow: none; border-radius: 0; }
+[data-theme="newspaper"] .episodes-search:focus { border-color: var(--text); box-shadow: none; }
+
+/* Episode cards */
+[data-theme="newspaper"] .episode-card::before { display: none; }
+[data-theme="newspaper"] .episode-card-bg-num { display: none; }
+[data-theme="newspaper"] .episode-card:hover { transform: none; box-shadow: none; border-color: var(--text); }
+[data-theme="newspaper"] .episode-num { background: var(--text); border-color: var(--text); box-shadow: none; border-radius: 0; transform: none; }
+[data-theme="newspaper"] .episode-description { border-radius: 0; background: #ede8da; }
+
+/* Load more */
+[data-theme="newspaper"] .btn-load-more { border-radius: 0; box-shadow: none; }
+[data-theme="newspaper"] .btn-load-more:hover { transform: none; box-shadow: none; background: var(--text); color: white; }
+
+/* Voice form */
+[data-theme="newspaper"] .voice-form-wrap { box-shadow: none; border-width: 1px; }
+[data-theme="newspaper"] .form-group input,
+[data-theme="newspaper"] .form-group textarea { box-shadow: none; border-width: 1px; border-color: #cccccc; }
+[data-theme="newspaper"] .form-group input:focus,
+[data-theme="newspaper"] .form-group textarea:focus { border-color: var(--text); box-shadow: none; }
+[data-theme="newspaper"] .btn-submit { background: var(--text); border-color: var(--text); box-shadow: none; }
+[data-theme="newspaper"] .btn-submit:hover:not(:disabled) { transform: none; box-shadow: none; background: #444; }
+
+/* Footer */
+[data-theme="newspaper"] .site-footer { border-top: 2px solid var(--text); }
+
+/* Scroll to top */
+[data-theme="newspaper"] .btn-scroll-top { background: var(--text); border-color: var(--text); box-shadow: none; border-radius: 0; }
+[data-theme="newspaper"] .btn-scroll-top:hover { transform: none; box-shadow: none; }
+
+/* Toast */
+[data-theme="newspaper"] .toast { border-radius: 0; box-shadow: none; }
