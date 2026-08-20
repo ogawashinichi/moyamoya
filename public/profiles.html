@@ -7,7 +7,8 @@
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Noto+Serif+JP:wght@400;700;900&family=Zen+Maru+Gothic:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <script>if(localStorage.getItem('theme')==='newspaper')document.documentElement.setAttribute('data-theme','newspaper');</script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -26,6 +27,7 @@
         </a>
         <nav class="site-nav">
           <a href="/admin.html" class="nav-link">管理画面</a>
+          <button class="btn-theme-toggle" id="btn-theme-toggle" aria-label="テーマ切替" title="テーマ切替">📰</button>
           <button class="btn-logout" id="btn-logout">ログアウト</button>
         </nav>
       </div>

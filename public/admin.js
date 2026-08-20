@@ -1,5 +1,24 @@
 const BADGE_COLORS = ['#ff4757','#ff6b35','#9c27b0','#0097a7','#388e3c','#e91e8c'];
 
+// ===== Theme Toggle =====
+(function() {
+  const btn = document.getElementById('btn-theme-toggle');
+  if (!btn) return;
+  const isNewspaper = () => document.documentElement.getAttribute('data-theme') === 'newspaper';
+  btn.textContent = isNewspaper() ? '🎨' : '📰';
+  btn.addEventListener('click', () => {
+    if (isNewspaper()) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'default');
+      btn.textContent = '📰';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'newspaper');
+      localStorage.setItem('theme', 'newspaper');
+      btn.textContent = '🎨';
+    }
+  });
+})();
+
 // ===== Auth check =====
 (async () => {
   const res = await fetch('/api/auth/check');

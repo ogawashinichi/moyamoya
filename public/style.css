@@ -1217,3 +1217,40 @@ body.is-admin .episode-edit-btn { display: flex; }
 
 /* Toast */
 [data-theme="newspaper"] .toast { border-radius: 0; box-shadow: none; }
+
+/* Admin-specific overrides */
+[data-theme="newspaper"] .admin-page-header h1 { text-shadow: none; }
+[data-theme="newspaper"] .admin-card h2::before { background: var(--text); box-shadow: none; border-color: var(--text); }
+[data-theme="newspaper"] .admin-section-title::before { background: var(--text); border-color: var(--text); }
+[data-theme="newspaper"] .btn-logout { border-radius: 0; box-shadow: none; }
+[data-theme="newspaper"] .btn-logout:hover { background: #e0dbd0; transform: none; box-shadow: none; }
+[data-theme="newspaper"] .btn-messages { background: #e0dbd0; color: var(--text); border-radius: 0; box-shadow: none; border-color: var(--text); }
+[data-theme="newspaper"] .btn-messages:hover { transform: none; box-shadow: none; background: #d0ccc0; }
+[data-theme="newspaper"] .input-type-tab.active { background: var(--text); }
+[data-theme="newspaper"] .admin-nav-tab { border-radius: 0; box-shadow: none; }
+[data-theme="newspaper"] .admin-nav-tab:hover { transform: none; box-shadow: none; }
+[data-theme="newspaper"] .recent-item { border-radius: 0; box-shadow: none; border-left-color: var(--text); }
+[data-theme="newspaper"] .recent-item:hover { transform: none; box-shadow: none; }
+[data-theme="newspaper"] .recent-item-edit,
+[data-theme="newspaper"] .recent-item-delete { border-radius: 0; box-shadow: none; }
+[data-theme="newspaper"] .recent-item-edit:hover { background: #e0dbd0; transform: none; box-shadow: none; }
+[data-theme="newspaper"] .progress-bar { background: var(--text); }
+[data-theme="newspaper"] .msg-badge,
+[data-theme="newspaper"] .msg-new { background: var(--text); border-color: var(--text); border-radius: 0; }
+[data-theme="newspaper"] .msg-mark-all-btn { background: var(--text); border-radius: 0; box-shadow: none; }
+[data-theme="newspaper"] .msg-mark-all-btn:hover { transform: none; box-shadow: none; }
+[data-theme="newspaper"] .btn-read { background: #e0dbd0; border-color: var(--text); border-radius: 0; }
+[data-theme="newspaper"] .btn-read:hover,
+[data-theme="newspaper"] .btn-delete-msg:hover { transform: none; box-shadow: none; }
+[data-theme="newspaper"] .msg-filter-btn { border-radius: 0; }
+/* Login page */
+[data-theme="newspaper"] .login-page { background-image: none; }
+[data-theme="newspaper"] .login-blob-1,
+[data-theme="newspaper"] .login-blob-2 { display: none; }
+[data-theme="newspaper"] .login-card { box-shadow: 2px 2px 0 var(--text); }
+[data-theme="newspaper"] .login-logo-icon { background: var(--text); box-shadow: none; }
+[data-theme="newspaper"] .login-title { text-shadow: none; }
+[data-theme="newspaper"] .login-btn { background: var(--text); box-shadow: none; border-radius: 0; }
+[data-theme="newspaper"] .login-btn:hover:not(:disabled) { transform: none; box-shadow: none; background: #444; }
+[data-theme="newspaper"] .login-form-group input { box-shadow: none; border-width: 1px; }
+[data-theme="newspaper"] .login-form-group input:focus { border-color: var(--text); box-shadow: none; }

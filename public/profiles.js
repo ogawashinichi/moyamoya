@@ -1,3 +1,22 @@
+// ===== Theme Toggle =====
+(function() {
+  const btn = document.getElementById('btn-theme-toggle');
+  if (!btn) return;
+  const isNewspaper = () => document.documentElement.getAttribute('data-theme') === 'newspaper';
+  btn.textContent = isNewspaper() ? '🎨' : '📰';
+  btn.addEventListener('click', () => {
+    if (isNewspaper()) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'default');
+      btn.textContent = '📰';
+    } else {
+      document.documentElement.setAttribute('data-theme', 'newspaper');
+      localStorage.setItem('theme', 'newspaper');
+      btn.textContent = '🎨';
+    }
+  });
+})();
+
 // ===== Auth =====
 (async () => {
   const res = await fetch('/api/auth/check');
