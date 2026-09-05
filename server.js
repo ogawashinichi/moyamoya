@@ -475,6 +475,20 @@ app.get('/feed.xml', (req, res) => {
 });
 function escXml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
+// ===== Sitemap =====
+app.get('/sitemap.xml', (req, res) => {
+  let episodes = [];
+  try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch {}
+  const urls = [
+    `<url><loc>${SITE_URL}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>`,
+    ...episodes.map(ep =>
+      `<url><loc>${SITE_URL}/?ep=${ep.id}</loc><lastmod>${ep.date}</lastmod><changefreq>never</changefreq><priority>0.7</priority></url>`
+    )
+  ].join('\n  ');
+  res.setHeader('Content-Type', 'application/xml; charset=utf-8');
+  res.send(`<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n  ${urls}\n</urlset>`);
+});
+
 // ===== 404 Handler =====
 app.use((req, res) => {
   res.status(404).sendFile('404.html', { root: path.join(__dirname, 'public') });

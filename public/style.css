@@ -459,6 +459,22 @@ a { color: inherit; text-decoration: none; }
 .episode-share-btn:hover { background: var(--pop-yellow); border-color: var(--text); color: var(--text); }
 [data-theme="newspaper"] .episode-share-btn { border-radius: 0; border-color: #cccccc; }
 [data-theme="newspaper"] .episode-share-btn:hover { background: #e0dbd0; border-color: var(--text); }
+.episode-tweet-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid #000;
+  background: #000;
+  color: #fff;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  flex-shrink: 0;
+}
+.episode-tweet-btn:hover { opacity: 0.75; transform: scale(1.1); }
+[data-theme="newspaper"] .episode-tweet-btn { border-radius: 0; }
 
 /* ===== Episode Tags ===== */
 .episode-tags {
@@ -1352,3 +1368,56 @@ body.is-admin .episode-edit-btn { display: flex; }
 [data-theme="newspaper"] .login-btn:hover:not(:disabled) { transform: none; box-shadow: none; background: #444; }
 [data-theme="newspaper"] .login-form-group input { box-shadow: none; border-width: 1px; }
 [data-theme="newspaper"] .login-form-group input:focus { border-color: var(--text); box-shadow: none; }
+
+/* ===== Dark Mode ===== */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="newspaper"]) {
+    --bg: #1a1825;
+    --surface: #252335;
+    --text: #ede8f5;
+    --muted: #9893b8;
+    --border: #3d3858;
+    --pop-border: 4px solid #ede8f5;
+    --pop-shadow: 6px 6px 0px rgba(0, 0, 0, 0.5);
+  }
+  :root:not([data-theme="newspaper"]) body {
+    background-image: radial-gradient(rgba(237,232,245,0.08) 1px, transparent 1px);
+  }
+  :root:not([data-theme="newspaper"]) .site-header {
+    background: var(--surface);
+    box-shadow: 4px 4px 0px rgba(0,0,0,0.5);
+  }
+  :root:not([data-theme="newspaper"]) .voice-form-wrap,
+  :root:not([data-theme="newspaper"]) .episode-card,
+  :root:not([data-theme="newspaper"]) .speaker-card,
+  :root:not([data-theme="newspaper"]) .admin-card,
+  :root:not([data-theme="newspaper"]) .modal,
+  :root:not([data-theme="newspaper"]) .tags-filter,
+  :root:not([data-theme="newspaper"]) .login-card,
+  :root:not([data-theme="newspaper"]) .recent-item { background: var(--surface); }
+  :root:not([data-theme="newspaper"]) input,
+  :root:not([data-theme="newspaper"]) textarea,
+  :root:not([data-theme="newspaper"]) select {
+    background: #1a1825;
+    color: var(--text);
+    border-color: var(--border);
+  }
+  :root:not([data-theme="newspaper"]) input::placeholder,
+  :root:not([data-theme="newspaper"]) textarea::placeholder { color: var(--muted); }
+  :root:not([data-theme="newspaper"]) .hero-blob-1 { background: rgba(255,94,137,0.18); }
+  :root:not([data-theme="newspaper"]) .hero-blob-2 { background: rgba(255,176,32,0.13); }
+  :root:not([data-theme="newspaper"]) .hero-blob-3 { background: rgba(162,123,255,0.15); }
+  :root:not([data-theme="newspaper"]) .nav-link:hover,
+  :root:not([data-theme="newspaper"]) .nav-link.active { background: rgba(255,176,32,0.25); color: var(--pop-yellow); }
+  :root:not([data-theme="newspaper"]) .section-title-bar { background: var(--pop-pink); }
+  :root:not([data-theme="newspaper"]) .episodes-search {
+    background: var(--surface);
+    color: var(--text);
+    border-color: var(--border);
+  }
+  :root:not([data-theme="newspaper"]) .episodes-search-wrap { background: var(--surface); border-color: var(--border); }
+  :root:not([data-theme="newspaper"]) .msg-item { background: var(--surface); }
+  :root:not([data-theme="newspaper"]) .admin-nav-tab { background: var(--surface); }
+  :root:not([data-theme="newspaper"]) .btn-load-more { background: var(--surface); color: var(--text); border-color: var(--border); }
+  :root:not([data-theme="newspaper"]) .site-footer { background: var(--surface); border-color: var(--border); }
+}

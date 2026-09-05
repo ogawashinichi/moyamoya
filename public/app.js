@@ -46,6 +46,7 @@ function renderEpisode(episode, index, total) {
       <div class="episode-meta-right">
         <time class="episode-date" datetime="${episode.date}">${formatDate(episode.date)}</time>
         <button class="episode-share-btn" title="URLをコピー" aria-label="URLをコピー"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
+        <button class="episode-tweet-btn" title="Xでシェア" aria-label="Xでシェア"><svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
         ${isAdmin ? `<button class="episode-edit-btn" title="編集" data-id="${episode.id}"><svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>` : ''}
       </div>
     </div>
@@ -81,7 +82,38 @@ function renderEpisode(episode, index, total) {
       () => showToast('コピーに失敗しました', 'error')
     );
   });
+  card.querySelector('.episode-tweet-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/?ep=${episode.id}`;
+    const text = `【新聞記者のもやもや話】第${num}回「${episode.title}」`;
+    window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+  });
   return card;
+}
+
+// ===== JSON-LD =====
+function updateJsonLd(episodes) {
+  const el = document.getElementById('json-ld');
+  if (!el) return;
+  const SITE = 'https://moyamoya-pefh.onrender.com';
+  el.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'PodcastSeries',
+    name: '新聞記者のもやもや話',
+    description: '東京新聞デジタル編集部の記者とデスクが日々感じている「もやもや」を語り合っています。取材での悩みや葛藤、ジャーナリズムの課題、社会の問いかけ。',
+    url: SITE + '/',
+    image: SITE + '/thumbnail.png',
+    inLanguage: 'ja',
+    author: { '@type': 'Organization', name: '東京新聞デジタル編集部' },
+    episode: episodes.map((ep, i) => ({
+      '@type': 'PodcastEpisode',
+      episodeNumber: episodes.length - i,
+      name: ep.title,
+      datePublished: ep.date,
+      description: ep.description || ep.title,
+      url: ep.spotifyUrl || ep.spaceUrl || `${SITE}/?ep=${ep.id}`
+    }))
+  });
 }
 
 // ===== Tag Filter =====
@@ -206,6 +238,7 @@ async function loadEpisodes() {
     updateHeroLatest();
     renderTagFilter();
     renderEpisodes();
+    updateJsonLd(allEpisodes);
     // Deep-link: ?ep=ID でそのエピソードにスクロール
     const epId = new URLSearchParams(window.location.search).get('ep');
     if (epId) {
@@ -252,6 +285,11 @@ if (themeToggle) {
       themeToggle.textContent = '🎨';
     }
   });
+}
+
+// ===== Service Worker =====
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').catch(() => {});
 }
 
 // ===== Scroll to top =====
