@@ -60,6 +60,14 @@ function renderEpisode(episode, index, total) {
     <h3 class="episode-title">${highlight(episode.title, searchQuery)}</h3>
     ${episode.description ? `<div class="episode-description">${highlight(episode.description, searchQuery)}</div>` : ''}
     ${episode.tags && episode.tags.length ? `<div class="episode-tags">${episode.tags.map(t => `<button class="episode-tag${t === activeTag ? ' active' : ''}" data-tag="${escHtml(t)}">${escHtml(t)}</button>`).join('')}</div>` : ''}
+    <div class="episode-nav">
+      ${index < total - 1
+        ? `<button class="ep-nav-btn ep-nav-prev" data-id="${allEpisodes[index+1].id}">← 第${num-1}回</button>`
+        : '<span></span>'}
+      ${index > 0
+        ? `<button class="ep-nav-btn ep-nav-next" data-id="${allEpisodes[index-1].id}">第${num+1}回 →</button>`
+        : ''}
+    </div>
     <div class="episode-player">
       ${episode.spotifyUrl
         ? `<button class="spotify-play-btn" data-url="${escHtml(toSpotifyEmbedUrl(episode.spotifyUrl))}"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 11.424c-.18.295-.563.387-.857.207-2.35-1.435-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.469-.077-.336.132-.67.469-.746 3.809-.871 7.077-.496 9.713 1.115.293.18.386.563.207.856zm1.223-2.723c-.226.367-.706.482-1.072.257-2.687-1.652-6.785-2.131-9.965-1.166-.413.127-.848-.106-.973-.517-.125-.413.108-.848.52-.973 3.632-1.102 8.147-.568 11.233 1.328.366.226.48.707.257 1.071zm.105-2.835C14.692 5.95 9.375 5.775 6.297 6.71c-.493.15-1.016-.129-1.166-.623-.148-.495.13-1.016.625-1.165 3.532-1.073 9.404-.866 13.115 1.338.445.264.59.838.327 1.282-.264.443-.838.59-1.284.324z"/></svg> Spotifyで再生</button>`
@@ -94,6 +102,14 @@ function renderEpisode(episode, index, total) {
       renderEpisodes();
     });
   });
+  // Prev / Next nav
+  const navWrap = card.querySelector('.episode-nav');
+  if (navWrap) {
+    navWrap.querySelectorAll('.ep-nav-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => { e.stopPropagation(); jumpToEpisode(btn.dataset.id); });
+    });
+  }
+
   card.querySelector('.episode-share-btn').addEventListener('click', (e) => {
     e.stopPropagation();
     const url = `${window.location.origin}/?ep=${episode.id}`;
@@ -248,6 +264,30 @@ function renderEpisodes() {
 function loadMore() {
   displayCount += 12;
   renderEpisodes();
+}
+
+function jumpToEpisode(id) {
+  const existing = document.getElementById('episode-' + id);
+  if (existing) {
+    existing.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    existing.style.outline = '3px solid var(--pop-pink)';
+    existing.style.outlineOffset = '4px';
+    setTimeout(() => { existing.style.outline = ''; existing.style.outlineOffset = ''; }, 2000);
+    return;
+  }
+  const idx = allEpisodes.findIndex(ep => ep.id === id);
+  if (idx === -1) return;
+  displayCount = Math.max(displayCount, idx + 1);
+  renderEpisodes();
+  setTimeout(() => {
+    const t = document.getElementById('episode-' + id);
+    if (t) {
+      t.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      t.style.outline = '3px solid var(--pop-pink)';
+      t.style.outlineOffset = '4px';
+      setTimeout(() => { t.style.outline = ''; t.style.outlineOffset = ''; }, 2000);
+    }
+  }, 100);
 }
 
 // ===== Load =====
