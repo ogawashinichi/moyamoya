@@ -125,6 +125,13 @@
               <label for="voice-message">メッセージ<span class="required">*</span></label>
               <textarea id="voice-message" rows="4" maxlength="1000" placeholder="感想やリクエストをお寄せください（1000文字以内）"></textarea>
             </div>
+            <div class="form-group form-group--check">
+              <label class="check-label">
+                <input type="checkbox" id="voice-allow-publish">
+                <span>掲示板への掲載を希望する（任意）</span>
+              </label>
+              <p class="form-hint">チェックした場合、編集部の判断で <a href="/board.html">掲示板</a> に掲載されることがあります。メールアドレス・電話番号は掲載されません。</p>
+            </div>
             <button type="submit" class="btn-submit" id="voice-submit">送信する</button>
           </form>
           <div id="voice-thanks" class="voice-thanks" style="display:none;">

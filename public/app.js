@@ -451,9 +451,10 @@ loadSettings();
 // ===== Voice Form =====
 async function submitVoice(e) {
   e.preventDefault();
-  const name    = document.getElementById('voice-name')?.value.trim() || '';
-  const contact = document.getElementById('voice-contact')?.value.trim() || '';
-  const message = document.getElementById('voice-message')?.value.trim() || '';
+  const name         = document.getElementById('voice-name')?.value.trim() || '';
+  const contact      = document.getElementById('voice-contact')?.value.trim() || '';
+  const message      = document.getElementById('voice-message')?.value.trim() || '';
+  const allowPublish = document.getElementById('voice-allow-publish')?.checked || false;
   if (!message) return;
   const btn = document.getElementById('voice-submit');
   btn.disabled = true; btn.textContent = '送信中…';
@@ -461,7 +462,7 @@ async function submitVoice(e) {
     const res = await fetch('/api/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, contact, message })
+      body: JSON.stringify({ name, contact, message, allowPublish })
     });
     const data = await res.json();
     if (!res.ok) { alert(data.error || '送信に失敗しました'); btn.disabled = false; btn.textContent = '送信する'; return; }

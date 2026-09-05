@@ -155,6 +155,7 @@ function renderMessages() {
         <span class="msg-name">${escHtml(m.name)}</span>
         <span class="msg-date">${formatDate(m.createdAt)}</span>
         ${!m.read ? '<span class="msg-new">NEW</span>' : ''}
+        ${m.allowPublish ? '<span class="msg-consent">掲載希望</span>' : ''}
       </div>
       <p class="msg-body">${escHtml(m.message)}</p>
       <div class="msg-actions">

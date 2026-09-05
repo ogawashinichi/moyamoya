@@ -393,7 +393,7 @@ function initMessages() {
 
 app.post('/api/messages', (req, res) => {
   try {
-    const { name, contact, message } = req.body;
+    const { name, contact, message, allowPublish } = req.body;
     if (!message || !message.trim()) return res.status(400).json({ error: 'メッセージを入力してください' });
     if (message.trim().length > 1000) return res.status(400).json({ error: 'メッセージは1000文字以内で入力してください' });
     const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
@@ -403,7 +403,9 @@ app.post('/api/messages', (req, res) => {
       contact: (contact || '').trim().slice(0, 100),
       message: message.trim(),
       createdAt: new Date().toISOString(),
-      read: false
+      read: false,
+      allowPublish: allowPublish === true,
+      published: false
     };
     messages.unshift(entry);
     fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
