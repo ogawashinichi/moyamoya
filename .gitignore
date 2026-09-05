@@ -10,6 +10,17 @@ public/images/
 # Claude Code の設定（ローカル専用）
 .claude/
 
+# 音声データ・メッセージなど実行時データ
+data/*.m4a
+data/*.mp3
+data/*.mp4
+data/*.wav
+data/*.aac
+messages.json
+
+# 誤って作られた embedded repo
+moyamoya/
+
 # OS・エディタ
 .DS_Store
 Thumbs.db

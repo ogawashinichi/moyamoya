@@ -58,6 +58,10 @@ form.addEventListener('submit', e => {
   if (!date) return showToast('配信日を入力してください', 'error');
   if (!title) return showToast('タイトルを入力してください', 'error');
 
+  const tagsRaw = document.getElementById('input-tags').value.trim();
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
+  const audioUrl = document.getElementById('input-audio-url').value.trim();
+
   if (currentInputType === 'spotify') {
     const spotifyUrl = document.getElementById('input-spotify-url').value.trim();
     if (!spotifyUrl) return showToast('SpotifyエピソードURLを入力してください', 'error');
@@ -65,7 +69,7 @@ form.addEventListener('submit', e => {
     fetch('/api/episodes/spotify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, date, description, spotifyUrl })
+      body: JSON.stringify({ title, date, description, spotifyUrl, audioUrl, tags })
     }).then(async res => {
       btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
       if (res.status === 401) { window.location.href = '/login.html'; return; }
@@ -83,7 +87,7 @@ form.addEventListener('submit', e => {
   fetch('/api/episodes/link', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, date, description, spaceUrl })
+    body: JSON.stringify({ title, date, description, spaceUrl, audioUrl, tags })
   }).then(async res => {
     btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
     if (res.status === 401) { window.location.href = '/login.html'; return; }
@@ -104,6 +108,10 @@ function openEditModal(ep) {
   if (spaceUrlEl) spaceUrlEl.value = ep.spaceUrl || '';
   const spotifyUrlEl = document.getElementById('edit-spotify-url');
   if (spotifyUrlEl) spotifyUrlEl.value = ep.spotifyUrl || '';
+  const audioUrlEl = document.getElementById('edit-audio-url');
+  if (audioUrlEl) audioUrlEl.value = ep.audioUrl || '';
+  const tagsEl = document.getElementById('edit-tags');
+  if (tagsEl) tagsEl.value = (ep.tags || []).join(', ');
   editModal.classList.add('open');
 }
 function closeEditModal() { editModal.classList.remove('open'); editingId = null; }
@@ -117,6 +125,9 @@ document.getElementById('modal-save').addEventListener('click', async () => {
   const description = document.getElementById('edit-description').value.trim();
   const spaceUrl = document.getElementById('edit-space-url')?.value.trim() || '';
   const spotifyUrl = document.getElementById('edit-spotify-url')?.value.trim() || '';
+  const audioUrl = document.getElementById('edit-audio-url')?.value.trim() || '';
+  const tagsRaw = document.getElementById('edit-tags')?.value.trim() || '';
+  const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
   if (!date) return showToast('配信日を入力してください', 'error');
   if (!title) return showToast('タイトルを入力してください', 'error');
 
@@ -126,7 +137,7 @@ document.getElementById('modal-save').addEventListener('click', async () => {
     const res = await fetch(`/api/episodes/${editingId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, date, description, spaceUrl, spotifyUrl })
+      body: JSON.stringify({ title, date, description, spaceUrl, spotifyUrl, audioUrl, tags })
     });
     if (res.status === 401) { window.location.href = '/login.html'; return; }
     if (!res.ok) throw new Error((await res.json()).error);

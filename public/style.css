@@ -460,6 +460,87 @@ a { color: inherit; text-decoration: none; }
 [data-theme="newspaper"] .episode-share-btn { border-radius: 0; border-color: #cccccc; }
 [data-theme="newspaper"] .episode-share-btn:hover { background: #e0dbd0; border-color: var(--text); }
 
+/* ===== Episode Tags ===== */
+.episode-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 8px 0 4px;
+}
+.episode-tag {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--pop-purple);
+  background: transparent;
+  color: var(--pop-purple);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.6;
+}
+.episode-tag:hover, .episode-tag.active {
+  background: var(--pop-purple);
+  color: #fff;
+}
+[data-theme="newspaper"] .episode-tag { border-radius: 0; border-color: #555; color: #555; }
+[data-theme="newspaper"] .episode-tag:hover,
+[data-theme="newspaper"] .episode-tag.active { background: #333; color: #fff; border-color: #333; }
+
+/* ===== Tags Filter ===== */
+.tags-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: var(--pop-border);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--pop-shadow);
+}
+.tags-filter-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.tag-filter-btn {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 999px;
+  border: 2px solid var(--pop-purple);
+  background: transparent;
+  color: var(--pop-purple);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.6;
+}
+.tag-filter-btn:hover, .tag-filter-btn.active {
+  background: var(--pop-purple);
+  color: #fff;
+}
+.tag-filter-clear {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  border: 2px solid var(--muted);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+  line-height: 1.6;
+}
+.tag-filter-clear:hover { background: var(--muted); color: #fff; }
+[data-theme="newspaper"] .tags-filter { border-radius: 0; box-shadow: none; }
+[data-theme="newspaper"] .tag-filter-btn { border-radius: 0; border-color: #555; color: #555; }
+[data-theme="newspaper"] .tag-filter-btn:hover,
+[data-theme="newspaper"] .tag-filter-btn.active { background: #333; color: #fff; border-color: #333; }
+[data-theme="newspaper"] .tag-filter-clear { border-radius: 0; }
+
 .episode-player { margin-top: 4px; }
 audio { width: 100%; height: 38px; border-radius: 8px; accent-color: var(--pop-pink); }
 

@@ -267,16 +267,20 @@ app.get('/api/episodes', (req, res) => {
 
 app.post('/api/episodes/link', requireAuth, (req, res) => {
   try {
-    const { title, date, description, spaceUrl } = req.body;
+    const { title, date, description, spaceUrl, audioUrl, tags } = req.body;
     if (!title || !date || !spaceUrl) return res.status(400).json({ error: 'タイトル、日付、スペースURLは必須です' });
     if (!isSafeUrl(spaceUrl)) return res.status(400).json({ error: '無効なURLです' });
+    if (audioUrl && !isSafeUrl(audioUrl)) return res.status(400).json({ error: '無効な音声URLです' });
     let episodes = [];
     try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
     const episode = {
       id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       title: title.trim(), date,
       spaceUrl: spaceUrl.trim(),
-      description: (description || '').trim(), createdAt: new Date().toISOString()
+      description: (description || '').trim(),
+      audioUrl: (audioUrl || '').trim(),
+      tags: Array.isArray(tags) ? tags.map(t => t.trim()).filter(Boolean) : [],
+      createdAt: new Date().toISOString()
     };
     episodes.push(episode);
     episodes.sort((a, b) => b.date.localeCompare(a.date));
@@ -304,15 +308,19 @@ app.delete('/api/episodes/:id', requireAuth, (req, res) => {
 
 app.post('/api/episodes/spotify', requireAuth, (req, res) => {
   try {
-    const { title, date, description, spotifyUrl } = req.body;
+    const { title, date, description, spotifyUrl, audioUrl, tags } = req.body;
     if (!title || !date || !spotifyUrl) return res.status(400).json({ error: 'タイトル、日付、SpotifyURLは必須です' });
     if (!isSafeUrl(spotifyUrl)) return res.status(400).json({ error: '無効なURLです' });
+    if (audioUrl && !isSafeUrl(audioUrl)) return res.status(400).json({ error: '無効な音声URLです' });
     let episodes = [];
     try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
     const episode = {
       id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       title: title.trim(), date, spotifyUrl: spotifyUrl.trim(),
-      description: (description || '').trim(), createdAt: new Date().toISOString()
+      description: (description || '').trim(),
+      audioUrl: (audioUrl || '').trim(),
+      tags: Array.isArray(tags) ? tags.map(t => t.trim()).filter(Boolean) : [],
+      createdAt: new Date().toISOString()
     };
     episodes.push(episode);
     episodes.sort((a, b) => b.date.localeCompare(a.date));
@@ -326,8 +334,9 @@ app.post('/api/episodes/spotify', requireAuth, (req, res) => {
 
 app.put('/api/episodes/:id', requireAuth, (req, res) => {
   try {
-    const { title, date, description, spaceUrl, spotifyUrl } = req.body;
+    const { title, date, description, spaceUrl, spotifyUrl, audioUrl, tags } = req.body;
     if (!title || !date) return res.status(400).json({ error: 'タイトルと日付は必須です' });
+    if (audioUrl && !isSafeUrl(audioUrl)) return res.status(400).json({ error: '無効な音声URLです' });
     let episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8'));
     const idx = episodes.findIndex(e => e.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: 'エピソードが見つかりません' });
@@ -335,7 +344,9 @@ app.put('/api/episodes/:id', requireAuth, (req, res) => {
       ...episodes[idx],
       title: title.trim(), date, description: (description || '').trim(),
       ...(spaceUrl !== undefined ? { spaceUrl: spaceUrl.trim() } : {}),
-      ...(spotifyUrl !== undefined ? { spotifyUrl: spotifyUrl.trim() } : {})
+      ...(spotifyUrl !== undefined ? { spotifyUrl: spotifyUrl.trim() } : {}),
+      audioUrl: (audioUrl || '').trim(),
+      tags: Array.isArray(tags) ? tags.map(t => t.trim()).filter(Boolean) : (episodes[idx].tags || [])
     };
     episodes.sort((a, b) => b.date.localeCompare(a.date));
     fs.writeFileSync(EPISODES_FILE, JSON.stringify(episodes, null, 2));
@@ -407,6 +418,19 @@ initProfiles();
 initMessages();
 initEpisodes();
 
+// ===== PNG Thumbnail Generation =====
+(async () => {
+  const THUMBNAIL_SVG = path.join(__dirname, 'public', 'thumbnail.svg');
+  const THUMBNAIL_PNG = path.join(__dirname, 'public', 'thumbnail.png');
+  try {
+    const sharp = require('sharp');
+    await sharp(THUMBNAIL_SVG).resize(1200, 630).png().toFile(THUMBNAIL_PNG);
+    console.log('  thumbnail.png を生成しました');
+  } catch (err) {
+    console.warn('  thumbnail.png の生成をスキップ:', err.message);
+  }
+})();
+
 // ===== RSS Feed =====
 const SITE_URL = 'https://moyamoya-pefh.onrender.com';
 app.get('/feed.xml', (req, res) => {
@@ -415,9 +439,11 @@ app.get('/feed.xml', (req, res) => {
   const items = episodes.map((ep, i) => {
     const num = episodes.length - i;
     const link = ep.spotifyUrl || ep.spaceUrl || SITE_URL;
-    const enclosure = ep.filename
-      ? `<enclosure url="${SITE_URL}/data/${encodeURIComponent(ep.filename)}" length="0" type="audio/mpeg"/>`
-      : '';
+    const enclosure = ep.audioUrl
+      ? `<enclosure url="${escXml(ep.audioUrl)}" length="0" type="audio/mpeg"/>`
+      : ep.filename
+        ? `<enclosure url="${SITE_URL}/data/${encodeURIComponent(ep.filename)}" length="0" type="audio/mpeg"/>`
+        : '';
     const pubDate = (() => { try { return new Date(ep.date).toUTCString(); } catch { return ''; } })();
     return `<item>
       <title><![CDATA[第${num}回 ${ep.title}]]></title>
@@ -435,9 +461,9 @@ app.get('/feed.xml', (req, res) => {
     <link>${SITE_URL}</link>
     <description>東京新聞デジタル編集部の記者とデスクが日々感じている「もやもや」を語り合っています。</description>
     <language>ja</language>
-    <itunes:image href="${SITE_URL}/thumbnail.svg"/>
+    <itunes:image href="${SITE_URL}/thumbnail.png"/>
     <image>
-      <url>${SITE_URL}/thumbnail.svg</url>
+      <url>${SITE_URL}/thumbnail.png</url>
       <title>新聞記者のもやもや話</title>
       <link>${SITE_URL}</link>
     </image>
@@ -448,6 +474,11 @@ app.get('/feed.xml', (req, res) => {
   res.send(xml);
 });
 function escXml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ===== 404 Handler =====
+app.use((req, res) => {
+  res.status(404).sendFile('404.html', { root: path.join(__dirname, 'public') });
+});
 
 app.listen(PORT, () => {
   console.log('');

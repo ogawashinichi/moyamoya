@@ -12,6 +12,7 @@ let allEpisodes = [];
 let isAdmin = false;
 let displayCount = 12;
 let searchQuery = '';
+let activeTag = '';
 
 // ===== Utils =====
 function getMimeType(filename) {
@@ -50,6 +51,7 @@ function renderEpisode(episode, index, total) {
     </div>
     <h3 class="episode-title">${escHtml(episode.title)}</h3>
     ${episode.description ? `<div class="episode-description">${escHtml(episode.description)}</div>` : ''}
+    ${episode.tags && episode.tags.length ? `<div class="episode-tags">${episode.tags.map(t => `<button class="episode-tag${t === activeTag ? ' active' : ''}" data-tag="${escHtml(t)}">${escHtml(t)}</button>`).join('')}</div>` : ''}
     <div class="episode-player">
       ${episode.spotifyUrl
         ? `<iframe src="${escHtml(toSpotifyEmbedUrl(episode.spotifyUrl))}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:10px;"></iframe>`
@@ -61,6 +63,16 @@ function renderEpisode(episode, index, total) {
   if (isAdmin) {
     card.querySelector('.episode-edit-btn').addEventListener('click', () => openEditModal(episode));
   }
+  card.querySelectorAll('.episode-tag').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const tag = btn.dataset.tag;
+      activeTag = activeTag === tag ? '' : tag;
+      displayCount = 12;
+      renderTagFilter();
+      renderEpisodes();
+    });
+  });
   card.querySelector('.episode-share-btn').addEventListener('click', (e) => {
     e.stopPropagation();
     const url = `${window.location.origin}/?ep=${episode.id}`;
@@ -70,6 +82,41 @@ function renderEpisode(episode, index, total) {
     );
   });
   return card;
+}
+
+// ===== Tag Filter =====
+function getAllTags() {
+  const set = new Set();
+  allEpisodes.forEach(ep => (ep.tags || []).forEach(t => set.add(t)));
+  return [...set];
+}
+
+function renderTagFilter() {
+  const wrap = document.getElementById('tags-filter');
+  if (!wrap) return;
+  const tags = getAllTags();
+  if (!tags.length) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+  wrap.innerHTML = `
+    <span class="tags-filter-label">タグで絞り込み：</span>
+    ${tags.map(t => `<button class="tag-filter-btn${activeTag === t ? ' active' : ''}" data-tag="${escHtml(t)}">${escHtml(t)}</button>`).join('')}
+    ${activeTag ? `<button class="tag-filter-clear">✕ クリア</button>` : ''}
+  `;
+  wrap.querySelectorAll('.tag-filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      activeTag = activeTag === btn.dataset.tag ? '' : btn.dataset.tag;
+      displayCount = 12;
+      renderTagFilter();
+      renderEpisodes();
+    });
+  });
+  const clearBtn = wrap.querySelector('.tag-filter-clear');
+  if (clearBtn) clearBtn.addEventListener('click', () => {
+    activeTag = '';
+    displayCount = 12;
+    renderTagFilter();
+    renderEpisodes();
+  });
 }
 
 // ===== Hero Latest =====
@@ -93,11 +140,15 @@ function renderEpisodes() {
   const loadMoreBtn = document.getElementById('btn-load-more');
 
   let filtered = allEpisodes;
+  if (activeTag) {
+    filtered = filtered.filter(ep => ep.tags && ep.tags.includes(activeTag));
+  }
   if (searchQuery) {
     const q = searchQuery.toLowerCase();
-    filtered = allEpisodes.filter(ep =>
+    filtered = filtered.filter(ep =>
       ep.title.toLowerCase().includes(q) ||
-      (ep.description && ep.description.toLowerCase().includes(q))
+      (ep.description && ep.description.toLowerCase().includes(q)) ||
+      (ep.tags || []).some(t => t.toLowerCase().includes(q))
     );
   }
 
@@ -112,9 +163,11 @@ function renderEpisodes() {
 
   grid.innerHTML = '';
   if (!filtered.length) {
-    const msg = searchQuery
-      ? `「${escHtml(searchQuery)}」に一致するエピソードはありません`
-      : 'まだエピソードがありません。';
+    const msg = activeTag
+      ? `タグ「${escHtml(activeTag)}」のエピソードはありません`
+      : searchQuery
+        ? `「${escHtml(searchQuery)}」に一致するエピソードはありません`
+        : 'まだエピソードがありません。';
     grid.innerHTML = `<div class="state-empty"><p>${msg}</p></div>`;
     if (loadMoreWrap) loadMoreWrap.style.display = 'none';
     return;
@@ -151,6 +204,7 @@ async function loadEpisodes() {
     if (adminBtn) adminBtn.style.display = isAdmin ? '' : 'none';
     displayCount = 12;
     updateHeroLatest();
+    renderTagFilter();
     renderEpisodes();
     // Deep-link: ?ep=ID でそのエピソードにスクロール
     const epId = new URLSearchParams(window.location.search).get('ep');

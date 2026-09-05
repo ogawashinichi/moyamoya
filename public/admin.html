@@ -75,6 +75,16 @@
               <label for="input-description">概要（任意）</label>
               <textarea id="input-description" name="description" placeholder="この回で話したトピックなど（省略可）"></textarea>
             </div>
+            <div class="form-group">
+              <label for="input-tags">タグ（任意、カンマ区切り）</label>
+              <input type="text" id="input-tags" placeholder="例：貧困, ジェンダー, 依存症">
+              <div class="form-hint">複数のタグはカンマで区切ってください</div>
+            </div>
+            <div class="form-group">
+              <label for="input-audio-url">音声ファイルURL（任意、RSS用）</label>
+              <input type="url" id="input-audio-url" placeholder="https://example.com/episode.mp3">
+              <div class="form-hint">Apple Podcast等のRSS配信に使う直リンクMP3 URL</div>
+            </div>
             <div class="input-type-tabs">
               <button type="button" class="input-type-tab active" id="tab-link" onclick="switchInputType('link')">Xスペースリンク</button>
               <button type="button" class="input-type-tab" id="tab-spotify" onclick="switchInputType('spotify')">Spotify</button>
@@ -148,12 +158,16 @@
       <div class="form-group">
         <label for="edit-spotify-url">SpotifyURL（任意）</label>
         <input type="url" id="edit-spotify-url" placeholder="https://open.spotify.com/episode/…">
-        <div class="form-hint">両方入力するとカードに2つのリンクボタンが並んで表示されます</div>
+        <div class="form-hint">入力するとカードにSpotifyプレイヤーが表示されます</div>
       </div>
       <div class="form-group">
-        <label for="edit-spotify-url">SpotifyエピソードURL（任意）</label>
-        <input type="url" id="edit-spotify-url" placeholder="https://open.spotify.com/episode/…">
-        <div class="form-hint">入力するとカードにSpotifyプレイヤーが表示されます</div>
+        <label for="edit-audio-url">音声ファイルURL（任意、RSS用）</label>
+        <input type="url" id="edit-audio-url" placeholder="https://example.com/episode.mp3">
+        <div class="form-hint">Apple Podcast等のRSS配信に使う直リンクMP3 URL</div>
+      </div>
+      <div class="form-group">
+        <label for="edit-tags">タグ（任意、カンマ区切り）</label>
+        <input type="text" id="edit-tags" placeholder="例：貧困, ジェンダー, 依存症">
       </div>
       <div class="modal-footer">
         <button class="btn-cancel" id="modal-cancel">キャンセル</button>
