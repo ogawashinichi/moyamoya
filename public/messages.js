@@ -158,6 +158,19 @@ function renderMessages() {
         ${m.allowPublish ? '<span class="msg-consent">掲載希望</span>' : ''}
       </div>
       <p class="msg-body">${escHtml(m.message)}</p>
+      <div class="msg-memo" id="memo-wrap-${m.id}">
+        ${m.memo
+          ? `<div class="msg-memo-text" id="memo-text-${m.id}">📝 ${escHtml(m.memo)}</div>`
+          : `<div class="msg-memo-text" id="memo-text-${m.id}" style="display:none;"></div>`}
+        <div class="msg-memo-editor" id="memo-editor-${m.id}" style="display:none;">
+          <textarea class="msg-memo-textarea" id="memo-ta-${m.id}" rows="2" maxlength="500" placeholder="内部メモ（非公開）">${escHtml(m.memo || '')}</textarea>
+          <div style="display:flex;gap:8px;margin-top:6px;">
+            <button class="btn-read" onclick="saveMemo('${m.id}')">保存</button>
+            <button class="btn-delete-msg" onclick="cancelMemo('${m.id}')">キャンセル</button>
+          </div>
+        </div>
+        <button class="btn-memo" onclick="toggleMemo('${m.id}')" id="memo-btn-${m.id}">${m.memo ? '📝 メモを編集' : '📝 メモを追加'}</button>
+      </div>
       <div class="msg-actions">
         ${!m.read ? `<button class="btn-read" onclick="markRead('${m.id}')">既読にする</button>` : ''}
         <button class="btn-publish-msg ${m.published ? 'btn-publish-msg--on' : ''}" onclick="togglePublish('${m.id}')">${m.published ? '✅ 公開中' : '📢 公開する'}</button>
@@ -198,6 +211,46 @@ async function togglePublish(id) {
   if (m) m.published = data.published;
   renderMessages();
   showToast(data.published ? '掲示板に公開しました' : '掲示板から非公開にしました');
+}
+
+function toggleMemo(id) {
+  const editor = document.getElementById(`memo-editor-${id}`);
+  const btn = document.getElementById(`memo-btn-${id}`);
+  const textEl = document.getElementById(`memo-text-${id}`);
+  const isOpen = editor.style.display !== 'none';
+  if (isOpen) {
+    editor.style.display = 'none';
+    btn.textContent = textEl.textContent.replace(/^📝\s*/, '') ? '📝 メモを編集' : '📝 メモを追加';
+  } else {
+    editor.style.display = 'block';
+    btn.textContent = 'キャンセル';
+    document.getElementById(`memo-ta-${id}`).focus();
+  }
+}
+
+function cancelMemo(id) {
+  document.getElementById(`memo-editor-${id}`).style.display = 'none';
+  const m = allMessages.find(m => m.id === id);
+  document.getElementById(`memo-btn-${id}`).textContent = m?.memo ? '📝 メモを編集' : '📝 メモを追加';
+}
+
+async function saveMemo(id) {
+  const ta = document.getElementById(`memo-ta-${id}`);
+  const memo = ta.value.trim();
+  const res = await fetch(`/api/messages/${id}/memo`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ memo })
+  });
+  if (!res.ok) { showToast('保存に失敗しました', 'error'); return; }
+  const m = allMessages.find(m => m.id === id);
+  if (m) m.memo = memo;
+  const textEl = document.getElementById(`memo-text-${id}`);
+  if (memo) { textEl.textContent = `📝 ${memo}`; textEl.style.display = ''; }
+  else { textEl.textContent = ''; textEl.style.display = 'none'; }
+  document.getElementById(`memo-editor-${id}`).style.display = 'none';
+  document.getElementById(`memo-btn-${id}`).textContent = memo ? '📝 メモを編集' : '📝 メモを追加';
+  showToast(memo ? 'メモを保存しました' : 'メモを削除しました');
 }
 
 async function deleteMessage(id) {

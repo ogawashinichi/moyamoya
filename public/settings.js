@@ -67,6 +67,10 @@ async function loadSettings() {
     if (at) at.value = s.announceText || '';
     if (au) au.value = s.announceUrl || '';
     if (ne) ne.value = s.notifyEmail || '';
+    const ap = document.getElementById('setting-apple-podcast-url');
+    const ss = document.getElementById('setting-spotify-show-url');
+    if (ap) ap.value = s.applePodcastUrl || '';
+    if (ss) ss.value = s.spotifyShowUrl || '';
   } catch {}
 }
 
@@ -76,13 +80,15 @@ async function saveSettings() {
   const announceText       = document.getElementById('setting-announce-text')?.value.trim();
   const announceUrl        = document.getElementById('setting-announce-url')?.value.trim();
   const notifyEmail        = document.getElementById('setting-notify-email')?.value.trim();
+  const applePodcastUrl    = document.getElementById('setting-apple-podcast-url')?.value.trim();
+  const spotifyShowUrl     = document.getElementById('setting-spotify-show-url')?.value.trim();
   const btn = document.querySelector('button[onclick="saveSettings()"]');
   if (btn) { btn.disabled = true; btn.textContent = '保存中…'; }
   try {
     const res = await fetch('/api/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ heroDescription, announceEnabled, announceText, announceUrl, notifyEmail })
+      body: JSON.stringify({ heroDescription, announceEnabled, announceText, announceUrl, notifyEmail, applePodcastUrl, spotifyShowUrl })
     });
     if (res.status === 401) { location.href = '/login.html'; return; }
     if (!res.ok) throw new Error((await res.json()).error || '保存失敗');

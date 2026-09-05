@@ -112,7 +112,7 @@ function renderEpisode(episode, index, total) {
 
   card.querySelector('.episode-share-btn').addEventListener('click', (e) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/?ep=${episode.id}`;
+    const url = `${window.location.origin}/episode/${episode.id}`;
     navigator.clipboard.writeText(url).then(
       () => showToast('URLをコピーしました', 'success'),
       () => showToast('コピーに失敗しました', 'error')
@@ -120,13 +120,13 @@ function renderEpisode(episode, index, total) {
   });
   card.querySelector('.episode-tweet-btn').addEventListener('click', (e) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/?ep=${episode.id}`;
+    const url = `${window.location.origin}/episode/${episode.id}`;
     const text = `【新聞記者のもやもや話】第${num}回「${episode.title}」`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
   });
   card.querySelector('.episode-line-btn').addEventListener('click', (e) => {
     e.stopPropagation();
-    const url = `${window.location.origin}/?ep=${episode.id}`;
+    const url = `${window.location.origin}/episode/${episode.id}`;
     const text = `【新聞記者のもやもや話】第${num}回「${episode.title}」\n`;
     window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text + url)}`, '_blank', 'noopener,noreferrer');
   });
@@ -485,6 +485,14 @@ async function loadSettings() {
     if (el && settings.heroDescription) el.textContent = settings.heroDescription;
     // Dynamic announce banner
     const banner = document.getElementById('announce-banner');
+    // Subscribe buttons
+    const appleBtn   = document.getElementById('subscribe-apple');
+    const spotifyBtn = document.getElementById('subscribe-spotify');
+    const subWrap    = document.getElementById('hero-subscribe');
+    if (appleBtn && settings.applePodcastUrl)  { appleBtn.href  = settings.applePodcastUrl;  appleBtn.hidden  = false; }
+    if (spotifyBtn && settings.spotifyShowUrl) { spotifyBtn.href = settings.spotifyShowUrl; spotifyBtn.hidden = false; }
+    if (subWrap && (settings.applePodcastUrl || settings.spotifyShowUrl)) subWrap.hidden = false;
+
     const bannerLink = document.getElementById('announce-banner-link');
     if (banner) {
       if (settings.announceEnabled && settings.announceText) {

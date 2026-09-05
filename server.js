@@ -117,6 +117,32 @@ app.get('/', (req, res, next) => {
   } catch { next(); }
 });
 
+// ===== Episode detail page (SEO-friendly URL with OGP injection) =====
+app.get('/episode/:id', (req, res, next) => {
+  try {
+    let episodes = [];
+    try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch {}
+    const ep = episodes.find(e => e.id === req.params.id);
+    if (!ep) return res.status(404).sendFile('404.html', { root: path.join(__dirname, 'public') });
+    const num = episodes.length - episodes.indexOf(ep);
+    const title = `第${num}回「${ep.title}」— 新聞記者のもやもや話`;
+    const desc = ep.description ? ep.description.slice(0, 200) : ep.title;
+    const epUrl = `${SITE_URL}/episode/${encodeURIComponent(req.params.id)}`;
+    let html = fs.readFileSync(path.join(__dirname, 'public', 'episode.html'), 'utf-8');
+    html = html
+      .replace(/(<title>).*?(<\/title>)/, `$1${escXml(title)}$2`)
+      .replace(/(<meta property="og:title" content=")[^"]*(")/,   `$1${escXml(title)}$2`)
+      .replace(/(<meta property="og:description" content=")[^"]*(")/,  `$1${escXml(desc)}$2`)
+      .replace(/(<meta property="og:url" content=")[^"]*(")/,     `$1${escXml(epUrl)}$2`)
+      .replace(/(<meta name="twitter:title" content=")[^"]*(")/,  `$1${escXml(title)}$2`)
+      .replace(/(<meta name="twitter:description" content=")[^"]*(")/,  `$1${escXml(desc)}$2`)
+      .replace(/(<link rel="canonical" href=")[^"]*(")/,          `$1${escXml(epUrl)}$2`);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.send(html);
+  } catch { next(); }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== Auth middleware =====
@@ -445,6 +471,17 @@ app.delete('/api/messages/:id', requireAuth, (req, res) => {
   }
 });
 
+app.patch('/api/messages/:id/memo', requireAuth, (req, res) => {
+  try {
+    const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    const idx = messages.findIndex(m => m.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'メッセージが見つかりません' });
+    messages[idx].memo = (req.body.memo || '').trim().slice(0, 500);
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 app.patch('/api/messages/:id/publish', requireAuth, (req, res) => {
   try {
     const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
@@ -666,7 +703,7 @@ app.get('/sitemap.xml', (req, res) => {
     `<url><loc>${SITE_URL}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>`,
     `<url><loc>${SITE_URL}/board.html</loc><changefreq>daily</changefreq><priority>0.6</priority></url>`,
     ...episodes.map(ep =>
-      `<url><loc>${SITE_URL}/?ep=${ep.id}</loc><lastmod>${ep.date}</lastmod><changefreq>never</changefreq><priority>0.7</priority></url>`
+      `<url><loc>${SITE_URL}/episode/${ep.id}</loc><lastmod>${ep.date}</lastmod><changefreq>never</changefreq><priority>0.7</priority></url>`
     )
   ].join('\n  ');
   res.setHeader('Content-Type', 'application/xml; charset=utf-8');

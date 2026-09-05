@@ -209,6 +209,37 @@ function escHtml(str) { return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').re
 
 loadEpisodes();
 
+// ===== Dashboard Stats =====
+async function loadStats() {
+  try {
+    const [epRes, msgRes, schRes] = await Promise.all([
+      fetch('/api/episodes'),
+      fetch('/api/messages'),
+      fetch('/api/schedules/all')
+    ]);
+    const episodes  = await epRes.json();
+    const messages  = await msgRes.json();
+    const schedules = await schRes.json();
+    const today = new Date().toISOString().slice(0, 10);
+    const upcoming = schedules.filter(s => s.published && s.date >= today).length;
+    const unread   = messages.filter(m => !m.read).length;
+
+    const setNum = (id, n, suffix='') => {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.querySelector('.dash-stat-num').textContent = n + suffix;
+    };
+    setNum('stat-episodes', episodes.length, '本');
+    setNum('stat-unread',   unread,           '件');
+    setNum('stat-schedule', upcoming,         '件');
+
+    const unreadStat = document.getElementById('stat-unread');
+    if (unreadStat) unreadStat.classList.toggle('dash-stat--alert', unread > 0);
+  } catch {}
+}
+
+loadStats();
+
 // ===== Unread badge =====
 async function loadUnreadBadge() {
   try {
