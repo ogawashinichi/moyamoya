@@ -1,5 +1,5 @@
-const CACHE = 'moyamoya-v3';
-const STATIC = ['/style.css', '/app.js', '/favicon.svg', '/manifest.json'];
+const CACHE = 'moyamoya-v4';
+const STATIC = ['/style.css', '/app.js', '/board.js', '/favicon.svg', '/manifest.json'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(STATIC)));

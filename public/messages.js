@@ -159,6 +159,7 @@ function renderMessages() {
       <p class="msg-body">${escHtml(m.message)}</p>
       <div class="msg-actions">
         ${!m.read ? `<button class="btn-read" onclick="markRead('${m.id}')">既読にする</button>` : ''}
+        <button class="btn-publish-msg ${m.published ? 'btn-publish-msg--on' : ''}" onclick="togglePublish('${m.id}')">${m.published ? '✅ 公開中' : '📢 公開する'}</button>
         <button class="btn-delete-msg" onclick="deleteMessage('${m.id}')">削除</button>
       </div>
     </div>`).join('');
@@ -187,6 +188,15 @@ async function markAllRead() {
   allMessages.forEach(m => m.read = true);
   refresh();
   showToast('すべて既読にしました');
+}
+
+async function togglePublish(id) {
+  const res = await fetch(`/api/messages/${id}/publish`, { method: 'PATCH' });
+  const data = await res.json();
+  const m = allMessages.find(m => m.id === id);
+  if (m) m.published = data.published;
+  renderMessages();
+  showToast(data.published ? '掲示板に公開しました' : '掲示板から非公開にしました');
 }
 
 async function deleteMessage(id) {

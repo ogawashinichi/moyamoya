@@ -441,6 +441,30 @@ app.delete('/api/messages/:id', requireAuth, (req, res) => {
   }
 });
 
+app.patch('/api/messages/:id/publish', requireAuth, (req, res) => {
+  try {
+    const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    const idx = messages.findIndex(m => m.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'メッセージが見つかりません' });
+    messages[idx].published = !messages[idx].published;
+    fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    res.json({ ok: true, published: messages[idx].published });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// 公開掲示板 — 認証不要、contact フィールド除外
+app.get('/api/board', (req, res) => {
+  try {
+    const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    const board = messages
+      .filter(m => m.published)
+      .map(({ id, name, message, createdAt }) => ({ id, name, message, createdAt }));
+    res.json(board);
+  } catch { res.json([]); }
+});
+
 initSettings();
 initProfiles();
 initMessages();
@@ -509,6 +533,7 @@ app.get('/sitemap.xml', (req, res) => {
   try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch {}
   const urls = [
     `<url><loc>${SITE_URL}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>`,
+    `<url><loc>${SITE_URL}/board.html</loc><changefreq>daily</changefreq><priority>0.6</priority></url>`,
     ...episodes.map(ep =>
       `<url><loc>${SITE_URL}/?ep=${ep.id}</loc><lastmod>${ep.date}</lastmod><changefreq>never</changefreq><priority>0.7</priority></url>`
     )
