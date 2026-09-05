@@ -40,12 +40,11 @@
   <!-- "新聞記者の" -->
   <text x="450" y="210" font-size="64" font-weight="900" fill="#2D3142" letter-spacing="-1">新聞記者の</text>
 
-  <!-- "もやもや" highlight -->
-  <rect x="448" y="230" width="530" height="90" fill="#FFB020" opacity="0.55" transform="rotate(-0.6 448 230)"/>
-  <text x="450" y="310" font-size="96" font-weight="900" fill="#FF5E89" letter-spacing="-2">もやもや</text>
-
-  <!-- "話" -->
-  <text x="1000" y="310" font-size="96" font-weight="900" fill="#2D3142">話</text>
+  <!-- "もやもや話" highlight -->
+  <rect x="448" y="230" width="490" height="90" fill="#FFB020" opacity="0.55" transform="rotate(-0.6 448 230)"/>
+  <text x="450" y="310" font-size="96" font-weight="900" letter-spacing="-2">
+    <tspan fill="#FF5E89">もやもや</tspan><tspan fill="#2D3142">話</tspan>
+  </text>
 
   <!-- Subtitle -->
   <text x="450" y="380" font-size="26" font-weight="700" fill="#525C77">東京新聞デジタル編集部の記者とデスクが語り合う</text>
