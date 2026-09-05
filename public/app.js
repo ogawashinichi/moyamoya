@@ -62,7 +62,7 @@ function renderEpisode(episode, index, total) {
     ${episode.tags && episode.tags.length ? `<div class="episode-tags">${episode.tags.map(t => `<button class="episode-tag${t === activeTag ? ' active' : ''}" data-tag="${escHtml(t)}">${escHtml(t)}</button>`).join('')}</div>` : ''}
     <div class="episode-player">
       ${episode.spotifyUrl
-        ? `<iframe src="${escHtml(toSpotifyEmbedUrl(episode.spotifyUrl))}" width="100%" height="152" frameborder="0" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:10px;"></iframe>`
+        ? `<button class="spotify-play-btn" data-url="${escHtml(toSpotifyEmbedUrl(episode.spotifyUrl))}"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 11.424c-.18.295-.563.387-.857.207-2.35-1.435-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.469-.077-.336.132-.67.469-.746 3.809-.871 7.077-.496 9.713 1.115.293.18.386.563.207.856zm1.223-2.723c-.226.367-.706.482-1.072.257-2.687-1.652-6.785-2.131-9.965-1.166-.413.127-.848-.106-.973-.517-.125-.413.108-.848.52-.973 3.632-1.102 8.147-.568 11.233 1.328.366.226.48.707.257 1.071zm.105-2.835C14.692 5.95 9.375 5.775 6.297 6.71c-.493.15-1.016-.129-1.166-.623-.148-.495.13-1.016.625-1.165 3.532-1.073 9.404-.866 13.115 1.338.445.264.59.838.327 1.282-.264.443-.838.59-1.284.324z"/></svg> Spotifyで再生</button>`
         : episode.spaceUrl
           ? `<a class="space-link-btn" href="${escHtml(episode.spaceUrl)}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xスペースで聴く</a>`
           : `<audio controls preload="none"><source src="/data/${encodeURIComponent(episode.filename)}" type="${getMimeType(episode.filename)}"></audio>`}
@@ -70,6 +70,19 @@ function renderEpisode(episode, index, total) {
   `;
   if (isAdmin) {
     card.querySelector('.episode-edit-btn').addEventListener('click', () => openEditModal(episode));
+  }
+  const spotifyBtn = card.querySelector('.spotify-play-btn');
+  if (spotifyBtn) {
+    spotifyBtn.addEventListener('click', () => {
+      const iframe = document.createElement('iframe');
+      iframe.src = spotifyBtn.dataset.url;
+      iframe.width = '100%';
+      iframe.height = '152';
+      iframe.frameBorder = '0';
+      iframe.allow = 'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture';
+      iframe.style.borderRadius = '10px';
+      spotifyBtn.replaceWith(iframe);
+    });
   }
   card.querySelectorAll('.episode-tag').forEach(btn => {
     btn.addEventListener('click', (e) => {

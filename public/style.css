@@ -581,6 +581,24 @@ mark.search-hl {
 [data-theme="newspaper"] .tag-filter-btn.active { background: #333; color: #fff; border-color: #333; }
 [data-theme="newspaper"] .tag-filter-clear { border-radius: 0; }
 
+.spotify-play-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #1DB954;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  font-family: var(--font);
+}
+.spotify-play-btn:hover { opacity: 0.85; transform: scale(1.02); }
+[data-theme="newspaper"] .spotify-play-btn { border-radius: 0; }
+
 .episode-player { margin-top: 4px; }
 audio { width: 100%; height: 38px; border-radius: 8px; accent-color: var(--pop-pink); }
 
