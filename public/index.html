@@ -66,9 +66,11 @@
     <div class="hero-blob hero-blob-2"></div>
     <div class="hero-blob hero-blob-3"></div>
     <div class="container hero-content">
-      <a href="/board.html" class="announce-bar-link">
-        <span>📋</span> リスナーの声を掲示板で公開中！ 感想・テーマリクエストを掲載しています <span class="announce-bar-arrow">→</span>
-      </a>
+      <div id="announce-banner" hidden>
+        <a href="/board.html" class="announce-bar-link" id="announce-banner-link">
+          📋 リスナーの声を掲示板で公開中！ 感想・テーマリクエストを掲載しています →
+        </a>
+      </div>
       <h1 class="hero-title">
         新聞記者の<span class="highlight">もやもや</span>話
       </h1>
@@ -95,6 +97,15 @@
   </div>
 
   <main>
+    <section class="schedule-section" id="schedule-section" hidden>
+      <div class="container">
+        <div class="section-header">
+          <h2 class="section-title"><span class="section-title-bar"></span>今後の予定</h2>
+        </div>
+        <div class="schedule-list" id="schedule-list-public"></div>
+      </div>
+    </section>
+
     <section class="speakers-section">
       <div class="container">
         <div class="section-header">

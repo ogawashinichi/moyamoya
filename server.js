@@ -22,13 +22,14 @@ function migrateIfNeeded(filename) {
     fs.copyFileSync(src, dest);
   }
 }
-['episodes.json', 'profiles.json', 'settings.json', 'messages.json'].forEach(migrateIfNeeded);
+['episodes.json', 'profiles.json', 'settings.json', 'messages.json', 'schedules.json'].forEach(migrateIfNeeded);
 
 const EPISODES_FILE = path.join(STORAGE_DIR, 'episodes.json');
 const CONFIG_FILE   = path.join(__dirname, 'admin.config.json');
 const PROFILES_FILE = path.join(STORAGE_DIR, 'profiles.json');
 const SETTINGS_FILE = path.join(STORAGE_DIR, 'settings.json');
-const MESSAGES_FILE = path.join(STORAGE_DIR, 'messages.json');
+const MESSAGES_FILE  = path.join(STORAGE_DIR, 'messages.json');
+const SCHEDULES_FILE = path.join(STORAGE_DIR, 'schedules.json');
 const DATA_DIR      = process.env.STORAGE_DIR
   ? path.join(process.env.STORAGE_DIR, 'data')
   : path.join(__dirname, 'data');
@@ -77,7 +78,7 @@ app.use(session({
 }));
 // ===== Protected HTML pages (server-side auth guard) =====
 // Must be before express.static so auth check runs before serving the file
-const PROTECTED_PAGES = ['/admin.html', '/messages.html', '/settings.html'];
+const PROTECTED_PAGES = ['/admin.html', '/messages.html', '/settings.html', '/schedule.html'];
 PROTECTED_PAGES.forEach(page => {
   app.get(page, (req, res, next) => {
     if (req.session && req.session.authenticated) {
@@ -409,6 +410,7 @@ app.post('/api/messages', (req, res) => {
     };
     messages.unshift(entry);
     fs.writeFileSync(MESSAGES_FILE, JSON.stringify(messages, null, 2));
+    sendNewMessageNotification(entry);
     res.json({ ok: true });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -456,6 +458,33 @@ app.patch('/api/messages/:id/publish', requireAuth, (req, res) => {
   }
 });
 
+// ===== Email Notification =====
+async function sendNewMessageNotification(msg) {
+  try {
+    const settings = JSON.parse(fs.readFileSync(SETTINGS_FILE, 'utf-8'));
+    const notifyEmail = settings.notifyEmail || process.env.NOTIFY_EMAIL;
+    const smtpHost = process.env.SMTP_HOST;
+    const smtpUser = process.env.SMTP_USER;
+    const smtpPass = process.env.SMTP_PASS;
+    if (!notifyEmail || !smtpHost || !smtpUser || !smtpPass) return;
+    const nodemailer = require('nodemailer');
+    const transporter = nodemailer.createTransport({
+      host: smtpHost,
+      port: parseInt(process.env.SMTP_PORT || '587'),
+      secure: process.env.SMTP_PORT === '465',
+      auth: { user: smtpUser, pass: smtpPass }
+    });
+    await transporter.sendMail({
+      from: smtpUser,
+      to: notifyEmail,
+      subject: `【もやもや話】${msg.name}さんからメッセージが届きました`,
+      text: `${msg.name} さんからメッセージが届きました。\n\n${msg.message}\n\n管理画面: https://moyamoya-pefh.onrender.com/messages.html`
+    });
+  } catch (err) {
+    console.warn('メール通知の送信に失敗:', err.message);
+  }
+}
+
 // 公開掲示板 — 認証不要、contact フィールド除外
 app.get('/api/board', (req, res) => {
   try {
@@ -467,10 +496,110 @@ app.get('/api/board', (req, res) => {
   } catch { res.json([]); }
 });
 
+// ===== Schedules API =====
+function initSchedules() {
+  if (!fs.existsSync(SCHEDULES_FILE)) fs.writeFileSync(SCHEDULES_FILE, '[]');
+}
+
+app.get('/api/schedules', (req, res) => {
+  try {
+    const all = JSON.parse(fs.readFileSync(SCHEDULES_FILE, 'utf-8'));
+    res.json(all.filter(s => s.published).sort((a, b) => a.date.localeCompare(b.date)));
+  } catch { res.json([]); }
+});
+
+app.get('/api/schedules/all', requireAuth, (req, res) => {
+  try { res.json(JSON.parse(fs.readFileSync(SCHEDULES_FILE, 'utf-8'))); } catch { res.json([]); }
+});
+
+app.post('/api/schedules', requireAuth, (req, res) => {
+  try {
+    const { title, date, time, description, url } = req.body;
+    if (!title || !date) return res.status(400).json({ error: 'タイトルと日付は必須です' });
+    if (url && !isSafeUrl(url)) return res.status(400).json({ error: '無効なURLです' });
+    const schedules = JSON.parse(fs.readFileSync(SCHEDULES_FILE, 'utf-8'));
+    const entry = {
+      id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+      title: title.trim(), date,
+      time: (time || '').trim(),
+      description: (description || '').trim(),
+      url: (url || '').trim(),
+      published: false,
+      createdAt: new Date().toISOString()
+    };
+    schedules.push(entry);
+    schedules.sort((a, b) => a.date.localeCompare(b.date));
+    fs.writeFileSync(SCHEDULES_FILE, JSON.stringify(schedules, null, 2));
+    res.json(entry);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.put('/api/schedules/:id', requireAuth, (req, res) => {
+  try {
+    const { title, date, time, description, url, published } = req.body;
+    if (!title || !date) return res.status(400).json({ error: 'タイトルと日付は必須です' });
+    const schedules = JSON.parse(fs.readFileSync(SCHEDULES_FILE, 'utf-8'));
+    const idx = schedules.findIndex(s => s.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'スケジュールが見つかりません' });
+    schedules[idx] = { ...schedules[idx], title: title.trim(), date, time: (time || '').trim(), description: (description || '').trim(), url: isSafeUrl(url) ? (url || '').trim() : schedules[idx].url, published: published !== undefined ? !!published : schedules[idx].published };
+    schedules.sort((a, b) => a.date.localeCompare(b.date));
+    fs.writeFileSync(SCHEDULES_FILE, JSON.stringify(schedules, null, 2));
+    res.json(schedules.find(s => s.id === req.params.id));
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.patch('/api/schedules/:id/publish', requireAuth, (req, res) => {
+  try {
+    const schedules = JSON.parse(fs.readFileSync(SCHEDULES_FILE, 'utf-8'));
+    const idx = schedules.findIndex(s => s.id === req.params.id);
+    if (idx === -1) return res.status(404).json({ error: 'スケジュールが見つかりません' });
+    schedules[idx].published = !schedules[idx].published;
+    fs.writeFileSync(SCHEDULES_FILE, JSON.stringify(schedules, null, 2));
+    res.json({ ok: true, published: schedules[idx].published });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.delete('/api/schedules/:id', requireAuth, (req, res) => {
+  try {
+    let schedules = JSON.parse(fs.readFileSync(SCHEDULES_FILE, 'utf-8'));
+    schedules = schedules.filter(s => s.id !== req.params.id);
+    fs.writeFileSync(SCHEDULES_FILE, JSON.stringify(schedules, null, 2));
+    res.json({ ok: true });
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+// ===== CSV Export =====
+function toCsvRow(row) { return row.map(v => `"${String(v == null ? '' : v).replace(/"/g, '""')}"`).join(','); }
+
+app.get('/api/export/episodes', requireAuth, (req, res) => {
+  try {
+    const episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8'));
+    const header = ['ID', 'タイトル', '配信日', '概要', 'XスペースURL', 'SpotifyURL', '音声URL', 'タグ', '登録日時'];
+    const rows = episodes.map(ep => [ep.id, ep.title, ep.date, ep.description || '', ep.spaceUrl || '', ep.spotifyUrl || '', ep.audioUrl || '', (ep.tags || []).join(','), ep.createdAt]);
+    const csv = '﻿' + [header, ...rows].map(toCsvRow).join('\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="episodes.csv"');
+    res.send(csv);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
+app.get('/api/export/messages', requireAuth, (req, res) => {
+  try {
+    const messages = JSON.parse(fs.readFileSync(MESSAGES_FILE, 'utf-8'));
+    const header = ['ID', '名前', '連絡先', 'メッセージ', '既読', '掲載同意', '掲載済み', '受信日時'];
+    const rows = messages.map(m => [m.id, m.name, m.contact || '', m.message, m.read ? '既読' : '未読', m.allowPublish ? '希望' : '非希望', m.published ? '掲載中' : '非掲載', m.createdAt]);
+    const csv = '﻿' + [header, ...rows].map(toCsvRow).join('\n');
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', 'attachment; filename="messages.csv"');
+    res.send(csv);
+  } catch (err) { res.status(500).json({ error: err.message }); }
+});
+
 initSettings();
 initProfiles();
 initMessages();
 initEpisodes();
+initSchedules();
 
 // ===== PNG Thumbnail Generation =====
 (async () => {

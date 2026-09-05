@@ -2,6 +2,7 @@ User-agent: *
 Disallow: /admin.html
 Disallow: /messages.html
 Disallow: /settings.html
+Disallow: /schedule.html
 Disallow: /profiles.html
 Disallow: /login.html
 Disallow: /api/

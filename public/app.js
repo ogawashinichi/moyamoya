@@ -443,10 +443,51 @@ async function loadSettings() {
     const settings = await res.json();
     const el = document.getElementById('hero-desc');
     if (el && settings.heroDescription) el.textContent = settings.heroDescription;
+    // Dynamic announce banner
+    const banner = document.getElementById('announce-banner');
+    const bannerLink = document.getElementById('announce-banner-link');
+    if (banner) {
+      if (settings.announceEnabled && settings.announceText) {
+        if (bannerLink) {
+          bannerLink.textContent = settings.announceText + ' →';
+          if (settings.announceUrl) bannerLink.href = settings.announceUrl;
+        }
+        banner.hidden = false;
+      } else {
+        banner.hidden = true;
+      }
+    }
   } catch {}
 }
 
 loadSettings();
+
+// ===== Schedules =====
+async function loadSchedules() {
+  try {
+    const res = await fetch('/api/schedules');
+    if (!res.ok) return;
+    const schedules = await res.json();
+    const section = document.getElementById('schedule-section');
+    const list = document.getElementById('schedule-list-public');
+    if (!section || !list) return;
+    if (!schedules.length) { section.hidden = true; return; }
+    section.hidden = false;
+    list.innerHTML = schedules.map(s => {
+      const d = new Date(s.date);
+      const weekday = ['日','月','火','水','木','金','土'][d.getDay()];
+      const dateStr = `${d.getFullYear()}年${d.getMonth()+1}月${d.getDate()}日（${weekday}）${s.time ? ' ' + s.time + '〜' : ''}`;
+      return `<div class="sched-card">
+        <div class="sched-card-date">${escHtml(dateStr)}</div>
+        <div class="sched-card-title">${escHtml(s.title)}</div>
+        ${s.description ? `<div class="sched-card-desc">${escHtml(s.description)}</div>` : ''}
+        ${s.url ? `<a class="sched-card-link" href="${escHtml(s.url)}" target="_blank" rel="noopener">詳細・参加 →</a>` : ''}
+      </div>`;
+    }).join('');
+  } catch {}
+}
+
+loadSchedules();
 
 // ===== Voice Form =====
 async function submitVoice(e) {

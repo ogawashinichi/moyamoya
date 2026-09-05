@@ -56,21 +56,33 @@ async function loadSettings() {
   try {
     const res = await fetch('/api/settings');
     if (!res.ok) return;
-    const settings = await res.json();
+    const s = await res.json();
     const el = document.getElementById('setting-hero-desc');
-    if (el && settings.heroDescription) el.value = settings.heroDescription;
+    if (el && s.heroDescription) el.value = s.heroDescription;
+    const ae = document.getElementById('setting-announce-enabled');
+    const at = document.getElementById('setting-announce-text');
+    const au = document.getElementById('setting-announce-url');
+    const ne = document.getElementById('setting-notify-email');
+    if (ae) ae.checked = !!s.announceEnabled;
+    if (at) at.value = s.announceText || '';
+    if (au) au.value = s.announceUrl || '';
+    if (ne) ne.value = s.notifyEmail || '';
   } catch {}
 }
 
 async function saveSettings() {
-  const heroDescription = document.getElementById('setting-hero-desc')?.value.trim();
+  const heroDescription    = document.getElementById('setting-hero-desc')?.value.trim();
+  const announceEnabled    = document.getElementById('setting-announce-enabled')?.checked;
+  const announceText       = document.getElementById('setting-announce-text')?.value.trim();
+  const announceUrl        = document.getElementById('setting-announce-url')?.value.trim();
+  const notifyEmail        = document.getElementById('setting-notify-email')?.value.trim();
   const btn = document.querySelector('button[onclick="saveSettings()"]');
   if (btn) { btn.disabled = true; btn.textContent = '保存中…'; }
   try {
     const res = await fetch('/api/settings', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ heroDescription })
+      body: JSON.stringify({ heroDescription, announceEnabled, announceText, announceUrl, notifyEmail })
     });
     if (res.status === 401) { location.href = '/login.html'; return; }
     if (!res.ok) throw new Error((await res.json()).error || '保存失敗');

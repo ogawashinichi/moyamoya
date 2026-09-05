@@ -53,10 +53,11 @@
 
 
       <div class="admin-nav-tabs">
-        <a href="/admin.html" class="admin-nav-tab active">&#128203; エピソード管理</a>
-        <a href="/settings.html" class="admin-nav-tab">&#9881; サイト設定</a>
-        <a href="/profiles.html" class="admin-nav-tab">&#128100; 話者プロフィール</a>
-        <a href="/messages.html" class="admin-nav-tab" id="nav-messages">&#128172; メッセージ</a>
+        <a href="/admin.html" class="admin-nav-tab active">📋 エピソード管理</a>
+        <a href="/schedule.html" class="admin-nav-tab">📅 スケジュール</a>
+        <a href="/settings.html" class="admin-nav-tab">⚙️ サイト設定</a>
+        <a href="/profiles.html" class="admin-nav-tab">👤 話者プロフィール</a>
+        <a href="/messages.html" class="admin-nav-tab" id="nav-messages">💬 メッセージ</a>
       </div>
 
       <!-- ===== Episodes ===== -->
@@ -116,7 +117,10 @@
 
         <!-- Episode List -->
         <div class="admin-card">
-          <h2>登録済みエピソード</h2>
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;">
+            <h2>登録済みエピソード</h2>
+            <a href="/api/export/episodes" class="btn-export" download>📥 CSVエクスポート</a>
+          </div>
           <div id="recent-list" class="recent-list">
             <p style="color:var(--muted);font-size:14px;">読み込み中…</p>
           </div>

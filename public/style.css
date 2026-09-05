@@ -258,6 +258,35 @@ a { color: inherit; text-decoration: none; }
 /* ===== Wave Divider ===== */
 .wave-divider { display: none; }
 
+/* ===== Schedule Section (public) ===== */
+.schedule-section { padding: 0 0 48px; }
+.schedule-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin-top: 8px; }
+.sched-card {
+  background: var(--surface); border: 2px solid var(--border);
+  border-radius: 12px; padding: 18px 20px;
+  border-left: 4px solid var(--pop-pink);
+}
+.sched-card-date { font-size: 12px; font-weight: 800; color: var(--pop-pink); font-family: var(--font-heading); margin-bottom: 6px; }
+.sched-card-title { font-size: 15px; font-weight: 800; line-height: 1.5; color: var(--text); }
+.sched-card-desc { font-size: 13px; color: var(--muted); margin-top: 6px; line-height: 1.6; }
+.sched-card-link { display: inline-block; margin-top: 10px; font-size: 12px; font-weight: 800; color: var(--pop-pink); text-decoration: none; font-family: var(--font-heading); }
+.sched-card-link:hover { text-decoration: underline; }
+
+/* ===== Schedule Admin ===== */
+.sched-date { font-size: 12px; font-weight: 800; color: var(--pop-pink); font-family: var(--font-heading); }
+.sched-pub-badge { display: inline-block; font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 20px; border: 2px solid var(--muted); color: var(--muted); margin-left: 8px; }
+.sched-pub-badge--on { border-color: #1a7a1a; color: #1a7a1a; background: #e8f8e8; }
+
+/* ===== Export Button ===== */
+.btn-export {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: 12px; font-weight: 800; padding: 6px 14px; border-radius: 8px;
+  border: 2px solid var(--text); background: white; color: var(--text);
+  font-family: var(--font-heading); text-decoration: none; cursor: pointer;
+  transition: var(--transition);
+}
+.btn-export:hover { transform: translate(-1px,-1px); box-shadow: 2px 2px 0px var(--text); }
+
 /* ===== Speakers Section ===== */
 .speakers-section { padding: 0 0 64px; }
 .speakers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
@@ -1506,4 +1535,6 @@ body.is-admin .episode-edit-btn { display: flex; }
     color: #f8b4c8;
     box-shadow: 3px 3px 0px rgba(0,0,0,0.3);
   }
+  :root:not([data-theme="newspaper"]) .sched-card { background: var(--surface); border-color: var(--border); }
+  :root:not([data-theme="newspaper"]) .btn-export { background: var(--surface); color: var(--text); border-color: var(--border); }
 }

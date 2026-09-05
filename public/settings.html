@@ -50,6 +50,7 @@
 
       <div class="admin-nav-tabs">
         <a href="/admin.html" class="admin-nav-tab">📋 エピソード管理</a>
+        <a href="/schedule.html" class="admin-nav-tab">📅 スケジュール</a>
         <a href="/settings.html" class="admin-nav-tab active">⚙️ サイト設定</a>
         <a href="/profiles.html" class="admin-nav-tab">👤 話者プロフィール</a>
         <a href="/messages.html" class="admin-nav-tab" id="nav-messages">💬 メッセージ</a>
@@ -61,6 +62,32 @@
           <label for="setting-hero-desc">ヒーローセクションの説明文</label>
           <textarea id="setting-hero-desc" rows="5" placeholder="サイトの説明文を入力してください" style="font-size:14px;line-height:1.8;"></textarea>
         </div>
+
+        <h2 style="margin-top:28px;">お知らせバナー</h2>
+        <div class="form-group" style="margin-top:16px;">
+          <div class="form-group form-group--check">
+            <label class="check-label">
+              <input type="checkbox" id="setting-announce-enabled">
+              <span>バナーを表示する</span>
+            </label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="setting-announce-text">バナーのテキスト</label>
+          <input type="text" id="setting-announce-text" maxlength="100" placeholder="例：📋 リスナーの声を掲示板で公開中！">
+        </div>
+        <div class="form-group">
+          <label for="setting-announce-url">バナーのリンク先URL（任意）</label>
+          <input type="url" id="setting-announce-url" placeholder="https://…">
+        </div>
+
+        <h2 style="margin-top:28px;">メッセージ受信通知</h2>
+        <div class="form-group" style="margin-top:16px;">
+          <label for="setting-notify-email">通知先メールアドレス</label>
+          <input type="email" id="setting-notify-email" placeholder="admin@example.com">
+          <div class="form-hint">新しいメッセージが届いたときに通知します。送信にはサーバーのSMTP環境変数（SMTP_HOST / SMTP_USER / SMTP_PASS）の設定が必要です。</div>
+        </div>
+
         <button class="btn-submit" onclick="saveSettings()" style="max-width:200px;">保存する</button>
       </div>
 
