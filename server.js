@@ -699,9 +699,11 @@ function escXml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;')
 app.get('/sitemap.xml', (req, res) => {
   let episodes = [];
   try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch {}
+  const today = new Date().toISOString().slice(0, 10);
+  const latestDate = episodes.length ? episodes[0].date : today;
   const urls = [
-    `<url><loc>${SITE_URL}/</loc><changefreq>weekly</changefreq><priority>1.0</priority></url>`,
-    `<url><loc>${SITE_URL}/board.html</loc><changefreq>daily</changefreq><priority>0.6</priority></url>`,
+    `<url><loc>${SITE_URL}/</loc><lastmod>${latestDate}</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>`,
+    `<url><loc>${SITE_URL}/board.html</loc><lastmod>${today}</lastmod><changefreq>daily</changefreq><priority>0.6</priority></url>`,
     ...episodes.map(ep =>
       `<url><loc>${SITE_URL}/episode/${ep.id}</loc><lastmod>${ep.date}</lastmod><changefreq>never</changefreq><priority>0.7</priority></url>`
     )

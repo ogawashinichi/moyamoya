@@ -52,6 +52,20 @@ async function loadUnreadBadge() {
 }
 
 // ===== Settings =====
+function updateAnnouncePreview() {
+  const enabled = document.getElementById('setting-announce-enabled')?.checked;
+  const text    = document.getElementById('setting-announce-text')?.value.trim();
+  const preview = document.getElementById('announce-preview');
+  const link    = document.getElementById('announce-preview-link');
+  if (!preview || !link) return;
+  if (enabled && text) {
+    link.textContent = text + ' →';
+    preview.style.display = 'block';
+  } else {
+    preview.style.display = 'none';
+  }
+}
+
 async function loadSettings() {
   try {
     const res = await fetch('/api/settings');
@@ -71,6 +85,12 @@ async function loadSettings() {
     const ss = document.getElementById('setting-spotify-show-url');
     if (ap) ap.value = s.applePodcastUrl || '';
     if (ss) ss.value = s.spotifyShowUrl || '';
+    // Attach preview listeners
+    ['setting-announce-enabled', 'setting-announce-text'].forEach(id => {
+      const el2 = document.getElementById(id);
+      if (el2) { el2.addEventListener('input', updateAnnouncePreview); el2.addEventListener('change', updateAnnouncePreview); }
+    });
+    updateAnnouncePreview();
   } catch {}
 }
 

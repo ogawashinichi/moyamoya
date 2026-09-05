@@ -1470,6 +1470,87 @@ body.is-admin .episode-edit-btn { display: flex; }
 [data-theme="newspaper"] .btn-read:hover,
 [data-theme="newspaper"] .btn-delete-msg:hover { transform: none; box-shadow: none; }
 [data-theme="newspaper"] .msg-filter-btn { border-radius: 0; }
+/* ===== Resume Chip ===== */
+.resume-chip {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  background: rgba(255,94,137,0.08);
+  border: 2px solid var(--pop-pink);
+  border-radius: 100px;
+  padding: 8px 16px;
+  margin-bottom: 16px;
+  font-size: 13px;
+}
+.resume-chip-label {
+  font-weight: 700;
+  color: var(--pop-pink);
+  white-space: nowrap;
+}
+.resume-chip-btn {
+  background: var(--pop-pink);
+  color: #fff;
+  border: none;
+  border-radius: 100px;
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 280px;
+}
+.resume-chip-btn:hover { opacity: 0.85; }
+.resume-chip-close {
+  background: transparent;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 2px 6px;
+  margin-left: auto;
+  border-radius: 50%;
+  line-height: 1;
+}
+.resume-chip-close:hover { color: var(--text); }
+
+/* ===== Request Theme Button ===== */
+.btn-request-theme {
+  display: inline-block;
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: transparent;
+  border: 2px solid var(--pop-pink);
+  color: var(--pop-pink);
+  border-radius: 100px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.btn-request-theme:hover { background: var(--pop-pink); color: #fff; }
+
+/* ===== RSS Warn ===== */
+.rss-warn {
+  font-size: 13px;
+  color: #b7791f;
+  background: #fffbeb;
+  border: 1px solid #f6d860;
+  border-radius: 8px;
+  padding: 8px 14px;
+  margin-top: 10px;
+  margin-bottom: 4px;
+}
+
+/* ===== Announce Preview ===== */
+.announce-preview {
+  margin-top: 10px;
+  margin-bottom: 8px;
+}
+
 /* ===== Dashboard Stats ===== */
 .dash-stats {
   display: flex;
@@ -1779,4 +1860,5 @@ body.is-admin .episode-edit-btn { display: flex; }
   :root:not([data-theme="newspaper"]) .ep-detail-nav-btn { background: var(--surface); }
   :root:not([data-theme="newspaper"]) .msg-memo { background: rgba(255,255,255,0.04); }
   :root:not([data-theme="newspaper"]) .msg-memo-textarea { background: #1a1825; }
+  :root:not([data-theme="newspaper"]) .rss-warn { background: #2a2310; border-color: #7a6520; color: #e6c96a; }
 }

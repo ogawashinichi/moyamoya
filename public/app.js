@@ -112,6 +112,7 @@ function renderEpisode(episode, index, total) {
 
   card.querySelector('.episode-share-btn').addEventListener('click', (e) => {
     e.stopPropagation();
+    try { localStorage.setItem('lastEpisode', episode.id); } catch {}
     const url = `${window.location.origin}/episode/${episode.id}`;
     navigator.clipboard.writeText(url).then(
       () => showToast('URLをコピーしました', 'success'),
@@ -242,7 +243,10 @@ function renderEpisodes() {
       : searchQuery
         ? `「${escHtml(searchQuery)}」に一致するエピソードはありません`
         : 'まだエピソードがありません。';
-    grid.innerHTML = `<div class="state-empty"><p>${msg}</p></div>`;
+    const reqBtn = searchQuery
+      ? `<button class="btn-request-theme" onclick="requestTheme('${escHtml(searchQuery).replace(/'/g,"\\'")}')">このテーマをリクエストする →</button>`
+      : '';
+    grid.innerHTML = `<div class="state-empty"><p>${msg}</p>${reqBtn}</div>`;
     if (loadMoreWrap) loadMoreWrap.style.display = 'none';
     return;
   }
@@ -267,6 +271,7 @@ function loadMore() {
 }
 
 function jumpToEpisode(id) {
+  try { localStorage.setItem('lastEpisode', id); } catch {}
   const existing = document.getElementById('episode-' + id);
   if (existing) {
     existing.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -290,6 +295,36 @@ function jumpToEpisode(id) {
   }, 100);
 }
 
+function showResumeChip() {
+  if (document.getElementById('resume-chip')) return;
+  let savedId;
+  try { savedId = localStorage.getItem('lastEpisode'); } catch {}
+  if (!savedId) return;
+  const ep = allEpisodes.find(e => e.id === savedId);
+  if (!ep) return;
+  const num = allEpisodes.length - allEpisodes.indexOf(ep);
+  const chip = document.createElement('div');
+  chip.id = 'resume-chip';
+  chip.className = 'resume-chip';
+  chip.innerHTML = `<span class="resume-chip-label">前回のつづき</span>
+    <button class="resume-chip-btn" onclick="jumpToEpisode('${savedId}')">第${num}回「${escHtml(ep.title)}」へ →</button>
+    <button class="resume-chip-close" onclick="dismissResume()" aria-label="閉じる">✕</button>`;
+  const grid = document.getElementById('episodes-grid');
+  if (grid && grid.parentNode) grid.parentNode.insertBefore(chip, grid);
+}
+
+function dismissResume() {
+  try { localStorage.removeItem('lastEpisode'); } catch {}
+  document.getElementById('resume-chip')?.remove();
+}
+
+function requestTheme(query) {
+  const section = document.querySelector('.voice-section');
+  const ta = document.getElementById('voice-message');
+  if (section) section.scrollIntoView({ behavior: 'smooth' });
+  if (ta && query) { ta.value = `「${query}」について話してほしい`; ta.focus(); }
+}
+
 // ===== Load =====
 async function loadEpisodes() {
   const grid = document.getElementById('episodes-grid');
@@ -304,6 +339,7 @@ async function loadEpisodes() {
     updateHeroLatest();
     renderTagFilter();
     renderEpisodes();
+    showResumeChip();
     updateJsonLd(allEpisodes);
     // Deep-link: ?ep=ID でそのエピソードにスクロール
     const epId = new URLSearchParams(window.location.search).get('ep');

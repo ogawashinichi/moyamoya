@@ -159,6 +159,16 @@ async function loadEpisodes() {
     const res = await fetch('/api/episodes');
     const episodes = await res.json();
     if (!episodes.length) { recentList.innerHTML = '<p style="color:var(--muted);font-size:14px;">まだエピソードがありません。</p>'; return; }
+    const rssWarn = document.getElementById('rss-warn');
+    if (rssWarn) {
+      const noAudio = episodes.filter(ep => !ep.audioUrl).length;
+      if (noAudio > 0) {
+        rssWarn.textContent = `⚠️ ${noAudio}件のエピソードに音声URL（RSS用）が未設定です`;
+        rssWarn.style.display = 'block';
+      } else {
+        rssWarn.style.display = 'none';
+      }
+    }
     const total = episodes.length;
     recentList.innerHTML = episodes.map((ep, i) => {
       const num = total - i;

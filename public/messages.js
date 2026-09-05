@@ -136,6 +136,7 @@ function renderMessages() {
   let filtered = allMessages.filter(m => {
     if (currentFilter === 'unread') return !m.read;
     if (currentFilter === 'read') return m.read;
+    if (currentFilter === 'consent') return !!m.allowPublish;
     return true;
   });
   if (currentMonth !== null) {
@@ -144,6 +145,7 @@ function renderMessages() {
   if (!filtered.length) {
     const emptyMsg = currentFilter === 'unread' ? '未読メッセージはありません'
       : currentFilter === 'read' ? '既読メッセージはありません'
+      : currentFilter === 'consent' ? '掲載希望のメッセージはありません'
       : currentMonth ? 'この期間のメッセージはありません'
       : 'まだメッセージはありません';
     list.innerHTML = `<p class="loading-text">${emptyMsg}</p>`;
