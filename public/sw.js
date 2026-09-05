@@ -1,4 +1,4 @@
-const CACHE = 'moyamoya-v1';
+const CACHE = 'moyamoya-v2';
 const STATIC = ['/style.css', '/app.js', '/favicon.svg', '/manifest.json'];
 
 self.addEventListener('install', e => {
