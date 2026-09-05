@@ -88,6 +88,34 @@ PROTECTED_PAGES.forEach(page => {
   });
 });
 
+// ===== Episode-specific OGP (for social crawlers) =====
+app.get('/', (req, res, next) => {
+  const epId = req.query.ep;
+  if (!epId) return next();
+  try {
+    let episodes = [];
+    try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch {}
+    const ep = episodes.find(e => e.id === epId);
+    if (!ep) return next();
+    const num = episodes.length - episodes.indexOf(ep);
+    const title = `第${num}回「${ep.title}」— 新聞記者のもやもや話`;
+    const desc = ep.description ? ep.description.slice(0, 200) : ep.title;
+    const epUrl = `${SITE_URL}/?ep=${encodeURIComponent(epId)}`;
+    let html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf-8');
+    html = html
+      .replace(/(<title>).*?(<\/title>)/, `$1${escXml(title)}$2`)
+      .replace(/(<meta property="og:title" content=")[^"]*(")/,   `$1${escXml(title)}$2`)
+      .replace(/(<meta property="og:description" content=")[^"]*(")/,  `$1${escXml(desc)}$2`)
+      .replace(/(<meta property="og:url" content=")[^"]*(")/,     `$1${escXml(epUrl)}$2`)
+      .replace(/(<meta name="twitter:title" content=")[^"]*(")/,  `$1${escXml(title)}$2`)
+      .replace(/(<meta name="twitter:description" content=")[^"]*(")/,  `$1${escXml(desc)}$2`)
+      .replace(/(<link rel="canonical" href=")[^"]*(")/,          `$1${escXml(epUrl)}$2`);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.send(html);
+  } catch { next(); }
+});
+
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ===== Auth middleware =====

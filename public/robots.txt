@@ -1,0 +1,9 @@
+User-agent: *
+Disallow: /admin.html
+Disallow: /messages.html
+Disallow: /settings.html
+Disallow: /profiles.html
+Disallow: /login.html
+Disallow: /api/
+
+Sitemap: https://moyamoya-pefh.onrender.com/sitemap.xml

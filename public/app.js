@@ -21,6 +21,12 @@ function getMimeType(filename) {
 }
 function formatDate(d) { const [y,m,day]=d.split('-'); return `${y}年${parseInt(m)}月${parseInt(day)}日`; }
 function escHtml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function highlight(text, query) {
+  const escaped = escHtml(text);
+  if (!query) return escaped;
+  const safe = escHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return escaped.replace(new RegExp(safe, 'gi'), m => `<mark class="search-hl">${m}</mark>`);
+}
 function toSpotifyEmbedUrl(url) {
   return url.replace('open.spotify.com/', 'open.spotify.com/embed/').split('?')[0];
 }
@@ -47,11 +53,12 @@ function renderEpisode(episode, index, total) {
         <time class="episode-date" datetime="${episode.date}">${formatDate(episode.date)}</time>
         <button class="episode-share-btn" title="URLをコピー" aria-label="URLをコピー"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
         <button class="episode-tweet-btn" title="Xでシェア" aria-label="Xでシェア"><svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.746l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></button>
+        <button class="episode-line-btn" title="LINEでシェア" aria-label="LINEでシェア"><svg viewBox="0 0 24 24" fill="currentColor" width="14" height="14"><path d="M19.952 10.876C19.952 6.553 15.613 3 10.302 3 4.99 3 .652 6.553.652 10.876c0 3.865 3.428 7.099 8.057 7.712.314.068.741.207.849.476.097.245.063.629.031.876l-.137.823c-.042.245-.193.957.838.522 1.031-.435 5.561-3.277 7.589-5.609 1.4-1.535 2.073-3.095 2.073-4.8z"/></svg></button>
         ${isAdmin ? `<button class="episode-edit-btn" title="編集" data-id="${episode.id}"><svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>` : ''}
       </div>
     </div>
-    <h3 class="episode-title">${escHtml(episode.title)}</h3>
-    ${episode.description ? `<div class="episode-description">${escHtml(episode.description)}</div>` : ''}
+    <h3 class="episode-title">${highlight(episode.title, searchQuery)}</h3>
+    ${episode.description ? `<div class="episode-description">${highlight(episode.description, searchQuery)}</div>` : ''}
     ${episode.tags && episode.tags.length ? `<div class="episode-tags">${episode.tags.map(t => `<button class="episode-tag${t === activeTag ? ' active' : ''}" data-tag="${escHtml(t)}">${escHtml(t)}</button>`).join('')}</div>` : ''}
     <div class="episode-player">
       ${episode.spotifyUrl
@@ -87,6 +94,12 @@ function renderEpisode(episode, index, total) {
     const url = `${window.location.origin}/?ep=${episode.id}`;
     const text = `【新聞記者のもやもや話】第${num}回「${episode.title}」`;
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`, '_blank', 'noopener,noreferrer');
+  });
+  card.querySelector('.episode-line-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/?ep=${episode.id}`;
+    const text = `【新聞記者のもやもや話】第${num}回「${episode.title}」\n`;
+    window.open(`https://line.me/R/msg/text/?${encodeURIComponent(text + url)}`, '_blank', 'noopener,noreferrer');
   });
   return card;
 }
@@ -265,7 +278,19 @@ if (searchInput) {
     displayCount = 12;
     renderEpisodes();
   });
+  searchInput.addEventListener('keydown', e => {
+    if (e.key === 'Escape') { searchInput.value = ''; searchQuery = ''; displayCount = 12; renderEpisodes(); searchInput.blur(); }
+  });
 }
+
+// ===== Keyboard Shortcuts =====
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && document.activeElement.tagName !== 'INPUT' && document.activeElement.tagName !== 'TEXTAREA') {
+    e.preventDefault();
+    const el = document.getElementById('episodes-search');
+    if (el) { el.focus(); el.select(); }
+  }
+});
 
 loadEpisodes();
 
