@@ -35,6 +35,7 @@ function renderEpisode(episode, index, total) {
   const ci = (num - 1) % BADGE_COLORS.length;
   const card = document.createElement('article');
   card.className = 'episode-card';
+  card.id = 'episode-' + episode.id;
   card.style.setProperty('--badge-color', BADGE_COLORS[ci]);
   card.style.setProperty('--card-gradient', CARD_GRADIENTS[ci]);
   card.innerHTML = `
@@ -43,6 +44,7 @@ function renderEpisode(episode, index, total) {
       <span class="episode-num">第${num}回</span>
       <div class="episode-meta-right">
         <time class="episode-date" datetime="${episode.date}">${formatDate(episode.date)}</time>
+        <button class="episode-share-btn" title="URLをコピー" aria-label="URLをコピー"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" width="14" height="14"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></button>
         ${isAdmin ? `<button class="episode-edit-btn" title="編集" data-id="${episode.id}"><svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zm17.71-10.21a1 1 0 000-1.41l-2.34-2.34a1 1 0 00-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg></button>` : ''}
       </div>
     </div>
@@ -59,6 +61,14 @@ function renderEpisode(episode, index, total) {
   if (isAdmin) {
     card.querySelector('.episode-edit-btn').addEventListener('click', () => openEditModal(episode));
   }
+  card.querySelector('.episode-share-btn').addEventListener('click', (e) => {
+    e.stopPropagation();
+    const url = `${window.location.origin}/?ep=${episode.id}`;
+    navigator.clipboard.writeText(url).then(
+      () => showToast('URLをコピーしました', 'success'),
+      () => showToast('コピーに失敗しました', 'error')
+    );
+  });
   return card;
 }
 
@@ -142,6 +152,19 @@ async function loadEpisodes() {
     displayCount = 12;
     updateHeroLatest();
     renderEpisodes();
+    // Deep-link: ?ep=ID でそのエピソードにスクロール
+    const epId = new URLSearchParams(window.location.search).get('ep');
+    if (epId) {
+      const target = document.getElementById('episode-' + epId);
+      if (target) {
+        setTimeout(() => {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          target.style.outline = '3px solid var(--pop-pink)';
+          target.style.outlineOffset = '4px';
+          setTimeout(() => { target.style.outline = ''; target.style.outlineOffset = ''; }, 2500);
+        }, 400);
+      }
+    }
   } catch {
     grid.innerHTML = '<div class="state-empty"><p>読み込みに失敗しました。</p></div>';
   }

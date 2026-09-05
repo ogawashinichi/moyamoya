@@ -1,0 +1,63 @@
+<svg viewBox="0 0 1200 630" xmlns="http://www.w3.org/2000/svg" role="img" font-family="'Noto Sans JP','Hiragino Kaku Gothic ProN','Hiragino Sans',sans-serif">
+  <title>新聞記者のもやもや話 — 東京新聞デジタル編集部</title>
+  <defs>
+    <pattern id="dots" x="0" y="0" width="36" height="36" patternUnits="userSpaceOnUse">
+      <circle cx="18" cy="18" r="1.4" fill="#525C77" opacity="0.18"/>
+    </pattern>
+  </defs>
+
+  <!-- BG -->
+  <rect width="1200" height="630" fill="#FFFDF0"/>
+  <rect width="1200" height="630" fill="url(#dots)"/>
+
+  <!-- Blobs -->
+  <ellipse cx="1080" cy="90" rx="260" ry="210" fill="#FF5E89" opacity="0.11" transform="rotate(20 1080 90)"/>
+  <ellipse cx="120" cy="570" rx="210" ry="160" fill="#FFB020" opacity="0.16" transform="rotate(-15 120 570)"/>
+  <circle cx="1000" cy="500" r="120" fill="#45D8FF" opacity="0.13"/>
+  <circle cx="310" cy="100" r="70" fill="#A27BFF" opacity="0.13"/>
+
+  <!-- Border frame -->
+  <rect x="24" y="24" width="1152" height="582" fill="none" stroke="#2D3142" stroke-width="6"/>
+  <rect x="32" y="32" width="1136" height="566" fill="none" stroke="#2D3142" stroke-width="2" opacity="0.25"/>
+
+  <!-- Mic circle -->
+  <circle cx="248" cy="315" r="150" fill="#FF5E89" stroke="#2D3142" stroke-width="5"/>
+  <rect x="218" y="225" width="60" height="100" rx="30" fill="white"/>
+  <path d="M188,308 Q188,375 248,385 Q308,375 308,308" fill="none" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <line x1="248" y1="385" x2="248" y2="415" stroke="white" stroke-width="7" stroke-linecap="round"/>
+  <line x1="218" y1="415" x2="278" y2="415" stroke="white" stroke-width="7" stroke-linecap="round"/>
+
+  <!-- PODCAST chip -->
+  <rect x="62" y="62" width="186" height="44" fill="#45D8FF" stroke="#2D3142" stroke-width="3.5"/>
+  <text x="155" y="91" font-size="17" font-weight="900" fill="#2D3142" text-anchor="middle" letter-spacing="3">PODCAST</text>
+
+  <!-- Decorative dots -->
+  <circle cx="1080" cy="80" r="14" fill="#FFB020" stroke="#2D3142" stroke-width="3"/>
+  <circle cx="1120" cy="55" r="9" fill="#FF5E89" stroke="#2D3142" stroke-width="2.5"/>
+  <circle cx="1055" cy="50" r="7" fill="#45D8FF" stroke="#2D3142" stroke-width="2"/>
+  <circle cx="1140" cy="90" r="6" fill="#A27BFF" stroke="#2D3142" stroke-width="2"/>
+
+  <!-- "新聞記者の" -->
+  <text x="450" y="210" font-size="64" font-weight="900" fill="#2D3142" letter-spacing="-1">新聞記者の</text>
+
+  <!-- "もやもや" highlight -->
+  <rect x="448" y="230" width="530" height="90" fill="#FFB020" opacity="0.55" transform="rotate(-0.6 448 230)"/>
+  <text x="450" y="310" font-size="96" font-weight="900" fill="#FF5E89" letter-spacing="-2">もやもや</text>
+
+  <!-- "話" -->
+  <text x="1000" y="310" font-size="96" font-weight="900" fill="#2D3142">話</text>
+
+  <!-- Subtitle -->
+  <text x="450" y="380" font-size="26" font-weight="700" fill="#525C77">東京新聞デジタル編集部の記者とデスクが語り合う</text>
+
+  <!-- Wave -->
+  <path d="M450,415 Q490,402 530,415 Q570,428 610,415 Q650,402 690,415 Q730,428 770,415 Q810,402 850,415 Q890,428 930,415 Q970,402 1010,415 Q1050,428 1090,415" fill="none" stroke="#FF5E89" stroke-width="3.5" stroke-linecap="round"/>
+
+  <!-- URL -->
+  <text x="450" y="468" font-size="19" font-weight="700" fill="#8a8fa8" letter-spacing="0.5">moyamoya-pefh.onrender.com</text>
+
+  <!-- Archive badge -->
+  <circle cx="1100" cy="530" r="52" fill="white" stroke="#2D3142" stroke-width="4"/>
+  <text x="1100" y="520" font-size="28" text-anchor="middle">🎙</text>
+  <text x="1100" y="548" font-size="11" font-weight="900" fill="#2D3142" text-anchor="middle" letter-spacing="1">ARCHIVE</text>
+</svg>

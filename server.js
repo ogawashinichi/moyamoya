@@ -406,6 +406,49 @@ initSettings();
 initProfiles();
 initMessages();
 initEpisodes();
+
+// ===== RSS Feed =====
+const SITE_URL = 'https://moyamoya-pefh.onrender.com';
+app.get('/feed.xml', (req, res) => {
+  let episodes = [];
+  try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch {}
+  const items = episodes.map((ep, i) => {
+    const num = episodes.length - i;
+    const link = ep.spotifyUrl || ep.spaceUrl || SITE_URL;
+    const enclosure = ep.filename
+      ? `<enclosure url="${SITE_URL}/data/${encodeURIComponent(ep.filename)}" length="0" type="audio/mpeg"/>`
+      : '';
+    const pubDate = (() => { try { return new Date(ep.date).toUTCString(); } catch { return ''; } })();
+    return `<item>
+      <title><![CDATA[第${num}回 ${ep.title}]]></title>
+      <link>${escXml(link)}</link>
+      <guid isPermaLink="false">${SITE_URL}/?ep=${escXml(ep.id)}</guid>
+      <pubDate>${pubDate}</pubDate>
+      <description><![CDATA[${ep.description || ep.title}]]></description>
+      ${enclosure}
+    </item>`;
+  }).join('\n');
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd">
+  <channel>
+    <title>新聞記者のもやもや話</title>
+    <link>${SITE_URL}</link>
+    <description>東京新聞デジタル編集部の記者とデスクが日々感じている「もやもや」を語り合っています。</description>
+    <language>ja</language>
+    <itunes:image href="${SITE_URL}/thumbnail.svg"/>
+    <image>
+      <url>${SITE_URL}/thumbnail.svg</url>
+      <title>新聞記者のもやもや話</title>
+      <link>${SITE_URL}</link>
+    </image>
+    ${items}
+  </channel>
+</rss>`;
+  res.setHeader('Content-Type', 'application/rss+xml; charset=utf-8');
+  res.send(xml);
+});
+function escXml(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
 app.listen(PORT, () => {
   console.log('');
   console.log('  新聞記者のもやもや話 アーカイブ');
