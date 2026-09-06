@@ -322,10 +322,9 @@ app.get('/api/episodes', (req, res) => {
 
 app.post('/api/episodes/link', requireAuth, (req, res) => {
   try {
-    const { title, date, description, spaceUrl, audioUrl, tags } = req.body;
+    const { title, date, description, spaceUrl, tags } = req.body;
     if (!title || !date || !spaceUrl) return res.status(400).json({ error: 'タイトル、日付、スペースURLは必須です' });
     if (!isSafeUrl(spaceUrl)) return res.status(400).json({ error: '無効なURLです' });
-    if (audioUrl && !isSafeUrl(audioUrl)) return res.status(400).json({ error: '無効な音声URLです' });
     let episodes = [];
     try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
     const episode = {
@@ -333,7 +332,6 @@ app.post('/api/episodes/link', requireAuth, (req, res) => {
       title: title.trim(), date,
       spaceUrl: spaceUrl.trim(),
       description: (description || '').trim(),
-      audioUrl: (audioUrl || '').trim(),
       tags: Array.isArray(tags) ? tags.map(t => t.trim()).filter(Boolean) : [],
       createdAt: new Date().toISOString()
     };
@@ -363,17 +361,15 @@ app.delete('/api/episodes/:id', requireAuth, (req, res) => {
 
 app.post('/api/episodes/spotify', requireAuth, (req, res) => {
   try {
-    const { title, date, description, spotifyUrl, audioUrl, tags } = req.body;
+    const { title, date, description, spotifyUrl, tags } = req.body;
     if (!title || !date || !spotifyUrl) return res.status(400).json({ error: 'タイトル、日付、SpotifyURLは必須です' });
     if (!isSafeUrl(spotifyUrl)) return res.status(400).json({ error: '無効なURLです' });
-    if (audioUrl && !isSafeUrl(audioUrl)) return res.status(400).json({ error: '無効な音声URLです' });
     let episodes = [];
     try { episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8')); } catch (e) {}
     const episode = {
       id: `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       title: title.trim(), date, spotifyUrl: spotifyUrl.trim(),
       description: (description || '').trim(),
-      audioUrl: (audioUrl || '').trim(),
       tags: Array.isArray(tags) ? tags.map(t => t.trim()).filter(Boolean) : [],
       createdAt: new Date().toISOString()
     };
@@ -389,9 +385,8 @@ app.post('/api/episodes/spotify', requireAuth, (req, res) => {
 
 app.put('/api/episodes/:id', requireAuth, (req, res) => {
   try {
-    const { title, date, description, spaceUrl, spotifyUrl, audioUrl, tags } = req.body;
+    const { title, date, description, spaceUrl, spotifyUrl, tags } = req.body;
     if (!title || !date) return res.status(400).json({ error: 'タイトルと日付は必須です' });
-    if (audioUrl && !isSafeUrl(audioUrl)) return res.status(400).json({ error: '無効な音声URLです' });
     let episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8'));
     const idx = episodes.findIndex(e => e.id === req.params.id);
     if (idx === -1) return res.status(404).json({ error: 'エピソードが見つかりません' });
@@ -400,7 +395,6 @@ app.put('/api/episodes/:id', requireAuth, (req, res) => {
       title: title.trim(), date, description: (description || '').trim(),
       ...(spaceUrl !== undefined ? { spaceUrl: spaceUrl.trim() } : {}),
       ...(spotifyUrl !== undefined ? { spotifyUrl: spotifyUrl.trim() } : {}),
-      audioUrl: (audioUrl || '').trim(),
       tags: Array.isArray(tags) ? tags.map(t => t.trim()).filter(Boolean) : (episodes[idx].tags || [])
     };
     episodes.sort((a, b) => b.date.localeCompare(a.date));
@@ -611,8 +605,8 @@ function toCsvRow(row) { return row.map(v => `"${String(v == null ? '' : v).repl
 app.get('/api/export/episodes', requireAuth, (req, res) => {
   try {
     const episodes = JSON.parse(fs.readFileSync(EPISODES_FILE, 'utf-8'));
-    const header = ['ID', 'タイトル', '配信日', '概要', 'XスペースURL', 'SpotifyURL', '音声URL', 'タグ', '登録日時'];
-    const rows = episodes.map(ep => [ep.id, ep.title, ep.date, ep.description || '', ep.spaceUrl || '', ep.spotifyUrl || '', ep.audioUrl || '', (ep.tags || []).join(','), ep.createdAt]);
+    const header = ['ID', 'タイトル', '配信日', '概要', 'XスペースURL', 'SpotifyURL', 'タグ', '登録日時'];
+    const rows = episodes.map(ep => [ep.id, ep.title, ep.date, ep.description || '', ep.spaceUrl || '', ep.spotifyUrl || '', (ep.tags || []).join(','), ep.createdAt]);
     const csv = '﻿' + [header, ...rows].map(toCsvRow).join('\n');
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', 'attachment; filename="episodes.csv"');
@@ -663,11 +657,9 @@ app.get('/feed.xml', (req, res) => {
   const items = episodes.map((ep, i) => {
     const num = episodes.length - i;
     const link = ep.spotifyUrl || ep.spaceUrl || SITE_URL;
-    const enclosure = ep.audioUrl
-      ? `<enclosure url="${escXml(ep.audioUrl)}" length="0" type="audio/mpeg"/>`
-      : ep.filename
-        ? `<enclosure url="${SITE_URL}/data/${encodeURIComponent(ep.filename)}" length="0" type="audio/mpeg"/>`
-        : '';
+    const enclosure = ep.filename
+      ? `<enclosure url="${SITE_URL}/data/${encodeURIComponent(ep.filename)}" length="0" type="audio/mpeg"/>`
+      : '';
     const pubDate = (() => { try { return new Date(ep.date).toUTCString(); } catch { return ''; } })();
     return `<item>
       <title><![CDATA[第${num}回 ${ep.title}]]></title>

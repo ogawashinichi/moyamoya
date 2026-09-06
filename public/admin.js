@@ -60,7 +60,6 @@ form.addEventListener('submit', e => {
 
   const tagsRaw = document.getElementById('input-tags').value.trim();
   const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
-  const audioUrl = document.getElementById('input-audio-url').value.trim();
 
   if (currentInputType === 'spotify') {
     const spotifyUrl = document.getElementById('input-spotify-url').value.trim();
@@ -69,7 +68,7 @@ form.addEventListener('submit', e => {
     fetch('/api/episodes/spotify', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, date, description, spotifyUrl, audioUrl, tags })
+      body: JSON.stringify({ title, date, description, spotifyUrl, tags })
     }).then(async res => {
       btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
       if (res.status === 401) { window.location.href = '/login.html'; return; }
@@ -87,7 +86,7 @@ form.addEventListener('submit', e => {
   fetch('/api/episodes/link', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, date, description, spaceUrl, audioUrl, tags })
+    body: JSON.stringify({ title, date, description, spaceUrl, tags })
   }).then(async res => {
     btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
     if (res.status === 401) { window.location.href = '/login.html'; return; }
@@ -108,8 +107,6 @@ function openEditModal(ep) {
   if (spaceUrlEl) spaceUrlEl.value = ep.spaceUrl || '';
   const spotifyUrlEl = document.getElementById('edit-spotify-url');
   if (spotifyUrlEl) spotifyUrlEl.value = ep.spotifyUrl || '';
-  const audioUrlEl = document.getElementById('edit-audio-url');
-  if (audioUrlEl) audioUrlEl.value = ep.audioUrl || '';
   const tagsEl = document.getElementById('edit-tags');
   if (tagsEl) tagsEl.value = (ep.tags || []).join(', ');
   editModal.classList.add('open');
@@ -125,7 +122,6 @@ document.getElementById('modal-save').addEventListener('click', async () => {
   const description = document.getElementById('edit-description').value.trim();
   const spaceUrl = document.getElementById('edit-space-url')?.value.trim() || '';
   const spotifyUrl = document.getElementById('edit-spotify-url')?.value.trim() || '';
-  const audioUrl = document.getElementById('edit-audio-url')?.value.trim() || '';
   const tagsRaw = document.getElementById('edit-tags')?.value.trim() || '';
   const tags = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : [];
   if (!date) return showToast('配信日を入力してください', 'error');
@@ -137,7 +133,7 @@ document.getElementById('modal-save').addEventListener('click', async () => {
     const res = await fetch(`/api/episodes/${editingId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, date, description, spaceUrl, spotifyUrl, audioUrl, tags })
+      body: JSON.stringify({ title, date, description, spaceUrl, spotifyUrl, tags })
     });
     if (res.status === 401) { window.location.href = '/login.html'; return; }
     if (!res.ok) throw new Error((await res.json()).error);
@@ -159,16 +155,6 @@ async function loadEpisodes() {
     const res = await fetch('/api/episodes');
     const episodes = await res.json();
     if (!episodes.length) { recentList.innerHTML = '<p style="color:var(--muted);font-size:14px;">まだエピソードがありません。</p>'; return; }
-    const rssWarn = document.getElementById('rss-warn');
-    if (rssWarn) {
-      const noAudio = episodes.filter(ep => !ep.audioUrl).length;
-      if (noAudio > 0) {
-        rssWarn.textContent = `⚠️ ${noAudio}件のエピソードに音声URL（RSS用）が未設定です`;
-        rssWarn.style.display = 'block';
-      } else {
-        rssWarn.style.display = 'none';
-      }
-    }
     const total = episodes.length;
     recentList.innerHTML = episodes.map((ep, i) => {
       const num = total - i;

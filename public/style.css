@@ -1533,18 +1533,6 @@ body.is-admin .episode-edit-btn { display: flex; }
 }
 .btn-request-theme:hover { background: var(--pop-pink); color: #fff; }
 
-/* ===== RSS Warn ===== */
-.rss-warn {
-  font-size: 13px;
-  color: #b7791f;
-  background: #fffbeb;
-  border: 1px solid #f6d860;
-  border-radius: 8px;
-  padding: 8px 14px;
-  margin-top: 10px;
-  margin-bottom: 4px;
-}
-
 /* ===== Announce Preview ===== */
 .announce-preview {
   margin-top: 10px;
@@ -1860,5 +1848,4 @@ body.is-admin .episode-edit-btn { display: flex; }
   :root:not([data-theme="newspaper"]) .ep-detail-nav-btn { background: var(--surface); }
   :root:not([data-theme="newspaper"]) .msg-memo { background: rgba(255,255,255,0.04); }
   :root:not([data-theme="newspaper"]) .msg-memo-textarea { background: #1a1825; }
-  :root:not([data-theme="newspaper"]) .rss-warn { background: #2a2310; border-color: #7a6520; color: #e6c96a; }
 }
