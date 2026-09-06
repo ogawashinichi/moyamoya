@@ -642,6 +642,10 @@ initSchedules();
 (async () => {
   const THUMBNAIL_SVG = path.join(__dirname, 'public', 'thumbnail.svg');
   const THUMBNAIL_PNG = path.join(__dirname, 'public', 'thumbnail.png');
+  if (fs.existsSync(THUMBNAIL_PNG)) {
+    console.log('  thumbnail.png は既存のためスキップ');
+    return;
+  }
   try {
     const sharp = require('sharp');
     await sharp(THUMBNAIL_SVG).resize(1200, 630).png().toFile(THUMBNAIL_PNG);
