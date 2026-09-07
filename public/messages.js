@@ -152,11 +152,11 @@ function renderMessages() {
     return;
   }
   list.innerHTML = filtered.map(m => `
-    <div class="msg-card ${m.read ? 'msg-card--read' : ''}" id="msg-${m.id}">
+    <div class="msg-card" id="msg-${m.id}">
       <div class="msg-meta">
+        <span class="msg-read-icon" title="${m.read ? '既読' : '未読'}">${m.read ? '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--muted);vertical-align:-2px"><circle cx="8" cy="8" r="6"/><polyline points="5,8 7,10 11,6"/></svg>' : '<svg viewBox="0 0 16 16" width="10" height="10" fill="var(--pop-pink)" style="vertical-align:-1px"><circle cx="8" cy="8" r="5"/></svg>'}</span>
         <span class="msg-name">${escHtml(m.name)}</span>
         <span class="msg-date">${formatDate(m.createdAt)}</span>
-        ${!m.read ? '<span class="msg-new">NEW</span>' : ''}
         ${m.allowPublish ? '<span class="msg-consent">掲載希望</span>' : ''}
       </div>
       <p class="msg-body">${escHtml(m.message)}</p>

@@ -1202,17 +1202,13 @@ body.is-admin .episode-edit-btn { display: flex; }
   background: white; border: var(--pop-border); border-radius: var(--radius-sm);
   box-shadow: 4px 4px 0px var(--text); padding: 18px 20px; margin-bottom: 12px;
 }
-.msg-card--read { box-shadow: 2px 2px 0px var(--text); }
+.msg-read-icon { display:inline-flex; align-items:center; flex-shrink:0; }
 .msg-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
 .msg-name { font-size: 14px; font-weight: 900; font-family: var(--font-heading); }
 .msg-date { font-size: 12px; color: var(--muted); font-weight: 700; }
 .msg-consent {
   font-size: 10px; font-weight: 900; background: #e8f8e8; color: #1a7a1a;
   padding: 2px 7px; border-radius: 20px; border: 2px solid #1a7a1a;
-}
-.msg-new {
-  font-size: 10px; font-weight: 900; background: var(--pop-pink); color: white;
-  padding: 2px 7px; border-radius: 20px; border: 2px solid var(--text);
 }
 .msg-body { font-size: 14px; color: var(--text); line-height: 1.75; font-weight: 700; white-space: pre-wrap; margin-bottom: 12px; }
 .msg-actions { display: flex; gap: 8px; }
@@ -1462,8 +1458,7 @@ body.is-admin .episode-edit-btn { display: flex; }
 [data-theme="newspaper"] .recent-item-delete { border-radius: 0; box-shadow: none; }
 [data-theme="newspaper"] .recent-item-edit:hover { background: #e0dbd0; transform: none; box-shadow: none; }
 [data-theme="newspaper"] .progress-bar { background: var(--text); }
-[data-theme="newspaper"] .msg-badge,
-[data-theme="newspaper"] .msg-new { background: var(--text); border-color: var(--text); border-radius: 0; }
+[data-theme="newspaper"] .msg-badge { background: var(--text); border-color: var(--text); border-radius: 0; }
 [data-theme="newspaper"] .msg-mark-all-btn { background: var(--text); border-radius: 0; box-shadow: none; }
 [data-theme="newspaper"] .msg-mark-all-btn:hover { transform: none; box-shadow: none; }
 [data-theme="newspaper"] .btn-read { background: #e0dbd0; border-color: var(--text); border-radius: 0; }
