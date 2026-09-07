@@ -134,10 +134,10 @@ function openEdit(id) {
   document.getElementById('e-desc').value = s.description || '';
   document.getElementById('e-url').value = s.url || '';
   document.getElementById('e-published').checked = s.published;
-  document.getElementById('edit-modal').style.display = 'flex';
+  document.getElementById('edit-modal').classList.add('open');
 }
-document.getElementById('modal-close').addEventListener('click', () => { document.getElementById('edit-modal').style.display = 'none'; editingId = null; });
-document.getElementById('modal-cancel').addEventListener('click', () => { document.getElementById('edit-modal').style.display = 'none'; editingId = null; });
+document.getElementById('modal-close').addEventListener('click', () => { document.getElementById('edit-modal').classList.remove('open'); editingId = null; });
+document.getElementById('modal-cancel').addEventListener('click', () => { document.getElementById('edit-modal').classList.remove('open'); editingId = null; });
 document.getElementById('modal-save').addEventListener('click', async () => {
   if (!editingId) return;
   const body = {
@@ -155,7 +155,7 @@ document.getElementById('modal-save').addEventListener('click', async () => {
   if (idx !== -1) allSchedules[idx] = data;
   allSchedules.sort((a, b) => a.date.localeCompare(b.date));
   renderList();
-  document.getElementById('edit-modal').style.display = 'none';
+  document.getElementById('edit-modal').classList.remove('open');
   editingId = null;
   showToast('保存しました');
 });
