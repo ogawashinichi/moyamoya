@@ -1202,7 +1202,7 @@ body.is-admin .episode-edit-btn { display: flex; }
   background: white; border: var(--pop-border); border-radius: var(--radius-sm);
   box-shadow: 4px 4px 0px var(--text); padding: 18px 20px; margin-bottom: 12px;
 }
-.msg-card--read { opacity: 0.6; box-shadow: 2px 2px 0px var(--text); }
+.msg-card--read { box-shadow: 2px 2px 0px var(--text); }
 .msg-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
 .msg-name { font-size: 14px; font-weight: 900; font-family: var(--font-heading); }
 .msg-date { font-size: 12px; color: var(--muted); font-weight: 700; }
