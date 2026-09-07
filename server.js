@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 const fs = require('fs');
 const path = require('path');
 
@@ -23,6 +24,7 @@ function migrateIfNeeded(filename) {
   }
 }
 ['episodes.json', 'profiles.json', 'settings.json', 'messages.json', 'schedules.json'].forEach(migrateIfNeeded);
+fs.mkdirSync(path.join(STORAGE_DIR, 'sessions'), { recursive: true });
 
 const EPISODES_FILE = path.join(STORAGE_DIR, 'episodes.json');
 const CONFIG_FILE   = path.join(__dirname, 'admin.config.json');
@@ -67,12 +69,13 @@ app.use((req, res, next) => {
 
 const isProduction = process.env.NODE_ENV === 'production';
 app.use(session({
+  store: new FileStore({ path: path.join(STORAGE_DIR, 'sessions'), ttl: 28800, retries: 0, logFn: () => {} }),
   secret: adminConfig.sessionSecret,
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: isProduction,  // HTTPS環境（Render）では自動でsecureに
+    secure: isProduction,
     maxAge: 8 * 60 * 60 * 1000 // 8 hours
   }
 }));
