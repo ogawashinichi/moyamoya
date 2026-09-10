@@ -764,6 +764,27 @@ body.is-admin .episode-edit-btn { display: flex; }
 }
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ===== Board nav highlight ===== */
+.nav-link--board { border: 2px solid var(--pop-pink); color: var(--pop-pink) !important; padding: 5px 14px; }
+.nav-link--board:hover { background: var(--pop-pink); color: white !important; }
+
+/* ===== Board CTA ===== */
+.board-cta-section { padding: 0 0 48px; }
+.board-cta-card {
+  display: flex; align-items: center; gap: 20px;
+  background: var(--pop-pink); color: white;
+  border: var(--pop-border); border-radius: var(--radius);
+  box-shadow: 4px 4px 0 var(--text);
+  padding: 24px 32px; text-decoration: none;
+  transition: var(--transition);
+}
+.board-cta-card:hover { transform: translate(-2px,-2px); box-shadow: 7px 7px 0 var(--text); }
+.board-cta-icon { font-size: 2rem; flex-shrink: 0; }
+.board-cta-body { flex: 1; min-width: 0; }
+.board-cta-title { font-size: 1.1rem; font-weight: 900; font-family: var(--font-heading); margin-bottom: 4px; }
+.board-cta-desc { font-size: 0.85rem; opacity: 0.9; }
+.board-cta-arrow { font-size: 1.5rem; font-weight: 900; flex-shrink: 0; }
+
 /* ===== Voice Form Section ===== */
 .voice-section { padding: 56px 0 80px; background: var(--bg); }
 .voice-form-wrap { max-width: 600px; margin: 0 auto; }
@@ -1168,7 +1189,12 @@ body.is-admin .episode-edit-btn { display: flex; }
   .logo-name { font-size: 12px; }
   .logo-sub { display: none; }
   .nav-link { display: none; }
+  .nav-link--board { display: flex; }
   .nav-btn { font-size: 12px; padding: 7px 14px; white-space: nowrap; }
+  .board-cta-card { padding: 20px; gap: 14px; }
+  .board-cta-icon { font-size: 1.5rem; }
+  .board-cta-title { font-size: 1rem; }
+  .board-cta-desc { font-size: 0.8rem; }
   .hero { padding: 100px 0 52px; }
   .episodes-section { padding: 40px 0 56px; }
   .admin-card { padding: 22px 18px; }
