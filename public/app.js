@@ -72,10 +72,7 @@ function renderEpisode(episode, index, total) {
       ${episode.spotifyUrl
         ? `<button class="spotify-play-btn" data-url="${escHtml(toSpotifyEmbedUrl(episode.spotifyUrl))}"><svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4.586 11.424c-.18.295-.563.387-.857.207-2.35-1.435-5.305-1.76-8.786-.963-.335.077-.67-.133-.746-.469-.077-.336.132-.67.469-.746 3.809-.871 7.077-.496 9.713 1.115.293.18.386.563.207.856zm1.223-2.723c-.226.367-.706.482-1.072.257-2.687-1.652-6.785-2.131-9.965-1.166-.413.127-.848-.106-.973-.517-.125-.413.108-.848.52-.973 3.632-1.102 8.147-.568 11.233 1.328.366.226.48.707.257 1.071zm.105-2.835C14.692 5.95 9.375 5.775 6.297 6.71c-.493.15-1.016-.129-1.166-.623-.148-.495.13-1.016.625-1.165 3.532-1.073 9.404-.866 13.115 1.338.445.264.59.838.327 1.282-.264.443-.838.59-1.284.324z"/></svg> Spotifyで再生</button>`
         : ''}
-      ${(episode.youtubeUrl || episode.spaceUrl) ? `<div class="episode-links">
-        ${episode.youtubeUrl ? `<a class="youtube-link-btn" href="${escHtml(episode.youtubeUrl)}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>YouTubeで見る</a>` : ''}
-        ${episode.spaceUrl ? `<a class="space-link-btn" href="${escHtml(episode.spaceUrl)}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>Xスペースで聴く</a>` : ''}
-      </div>` : ''}
+      ${episode.youtubeUrl ? `<div class="episode-links"><a class="youtube-link-btn" href="${escHtml(episode.youtubeUrl)}" target="_blank" rel="noopener noreferrer"><svg viewBox="0 0 24 24" fill="currentColor" width="16" height="16"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>YouTubeで見る</a></div>` : ''}
     </div>
   `;
   if (isAdmin) {
@@ -156,7 +153,7 @@ function updateJsonLd(episodes) {
       name: ep.title,
       datePublished: ep.date,
       description: ep.description || ep.title,
-      url: ep.spotifyUrl || ep.spaceUrl || `${SITE}/?ep=${ep.id}`
+      url: ep.spotifyUrl || ep.youtubeUrl || `${SITE}/?ep=${ep.id}`
     }))
   });
 }
@@ -424,8 +421,6 @@ function openEditModal(ep) {
   document.getElementById('edit-date').value = ep.date;
   document.getElementById('edit-title').value = ep.title;
   document.getElementById('edit-description').value = ep.description || '';
-  const spaceUrlEl = document.getElementById('edit-space-url');
-  if (spaceUrlEl) spaceUrlEl.value = ep.spaceUrl || '';
   const spotifyUrlEl = document.getElementById('edit-spotify-url');
   if (spotifyUrlEl) spotifyUrlEl.value = ep.spotifyUrl || '';
   const youtubeUrlEl = document.getElementById('edit-youtube-url');
@@ -441,7 +436,6 @@ document.getElementById('modal-save').addEventListener('click', async () => {
   const date = document.getElementById('edit-date').value.trim();
   const title = document.getElementById('edit-title').value.trim();
   const description = document.getElementById('edit-description').value.trim();
-  const spaceUrl = document.getElementById('edit-space-url')?.value.trim() || '';
   const spotifyUrl = document.getElementById('edit-spotify-url')?.value.trim() || '';
   const youtubeUrl = document.getElementById('edit-youtube-url')?.value.trim() || '';
   if (!date || !title) return showToast('日付とタイトルは必須です', 'error');
@@ -451,7 +445,7 @@ document.getElementById('modal-save').addEventListener('click', async () => {
     const res = await fetch(`/api/episodes/${editingId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, date, description, spaceUrl, spotifyUrl, youtubeUrl })
+      body: JSON.stringify({ title, date, description, spotifyUrl, youtubeUrl })
     });
     if (!res.ok) throw new Error((await res.json()).error);
     closeEditModal();

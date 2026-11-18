@@ -79,15 +79,14 @@ form.addEventListener('submit', e => {
     return;
   }
 
-  // Xスペースリンク / YouTube
-  const spaceUrl = document.getElementById('input-space-url').value.trim();
+  // YouTube
   const youtubeUrl = document.getElementById('input-youtube-url').value.trim();
-  if (!spaceUrl && !youtubeUrl) return showToast('XスペースURLまたはYouTube URLを入力してください', 'error');
+  if (!youtubeUrl) return showToast('YouTube URLを入力してください', 'error');
   btnSubmit.disabled = true; btnSubmit.textContent = '登録中…';
   fetch('/api/episodes/link', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ title, date, description, spaceUrl, youtubeUrl, tags })
+    body: JSON.stringify({ title, date, description, youtubeUrl, tags })
   }).then(async res => {
     btnSubmit.disabled = false; btnSubmit.textContent = '登録する';
     if (res.status === 401) { window.location.href = '/login.html'; return; }
@@ -104,8 +103,6 @@ function openEditModal(ep) {
   document.getElementById('edit-date').value = ep.date;
   document.getElementById('edit-title').value = ep.title;
   document.getElementById('edit-description').value = ep.description || '';
-  const spaceUrlEl = document.getElementById('edit-space-url');
-  if (spaceUrlEl) spaceUrlEl.value = ep.spaceUrl || '';
   const spotifyUrlEl = document.getElementById('edit-spotify-url');
   if (spotifyUrlEl) spotifyUrlEl.value = ep.spotifyUrl || '';
   const youtubeUrlEl = document.getElementById('edit-youtube-url');
@@ -123,7 +120,6 @@ document.getElementById('modal-save').addEventListener('click', async () => {
   const date = document.getElementById('edit-date').value.trim();
   const title = document.getElementById('edit-title').value.trim();
   const description = document.getElementById('edit-description').value.trim();
-  const spaceUrl = document.getElementById('edit-space-url')?.value.trim() || '';
   const spotifyUrl = document.getElementById('edit-spotify-url')?.value.trim() || '';
   const youtubeUrl = document.getElementById('edit-youtube-url')?.value.trim() || '';
   const tagsRaw = document.getElementById('edit-tags')?.value.trim() || '';
@@ -137,7 +133,7 @@ document.getElementById('modal-save').addEventListener('click', async () => {
     const res = await fetch(`/api/episodes/${editingId}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, date, description, spaceUrl, spotifyUrl, youtubeUrl, tags })
+      body: JSON.stringify({ title, date, description, spotifyUrl, youtubeUrl, tags })
     });
     if (res.status === 401) { window.location.href = '/login.html'; return; }
     if (!res.ok) throw new Error((await res.json()).error);
