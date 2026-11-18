@@ -659,6 +659,29 @@ mark.search-hl {
 .episode-player { margin-top: 4px; }
 audio { width: 100%; height: 38px; border-radius: 8px; accent-color: var(--pop-pink); }
 
+/* ===== YouTube Link Button ===== */
+.youtube-link-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #FF0000;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 10px 20px;
+  border-radius: var(--radius-sm);
+  border: 3px solid #b30000;
+  box-shadow: 4px 4px 0px rgba(179, 0, 0, 0.3);
+  transition: var(--transition);
+  font-family: var(--font-heading);
+  text-decoration: none;
+}
+.youtube-link-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 6px 6px 0px rgba(179, 0, 0, 0.3);
+}
+[data-theme="newspaper"] .youtube-link-btn { border-radius: 0; border-color: var(--text); box-shadow: none; }
+
 /* ===== X Space Link Button ===== */
 .space-link-btn {
   display: inline-flex;

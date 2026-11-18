@@ -101,9 +101,14 @@
                 <div class="form-hint">例：https://x.com/i/spaces/1RKZzjwYldvKB</div>
               </div>
               <div class="form-group">
+                <label for="input-youtube-url">YouTubeURL（任意）</label>
+                <input type="url" id="input-youtube-url" placeholder="https://www.youtube.com/watch?v=…">
+                <div class="form-hint">XスペースまたはYouTubeのどちらか一方は必須です</div>
+              </div>
+              <div class="form-group">
                 <label for="input-spotify-url">SpotifyURL（任意）</label>
                 <input type="url" id="input-spotify-url" placeholder="https://open.spotify.com/episode/…">
-                <div class="form-hint">両方入力するとカードに2つのリンクボタンが並んで表示されます</div>
+                <div class="form-hint">入力するとSpotifyの埋め込みプレイヤーが表示されます</div>
               </div>
             </div>
             <div id="section-spotify" style="display:none;">
@@ -166,7 +171,11 @@
       <div class="form-group">
         <label for="edit-spotify-url">SpotifyURL（任意）</label>
         <input type="url" id="edit-spotify-url" placeholder="https://open.spotify.com/episode/…">
-        <div class="form-hint">入力するとカードにSpotifyプレイヤーが表示されます</div>
+        <div class="form-hint">入力するとSpotifyの埋め込みプレイヤーが表示されます</div>
+      </div>
+      <div class="form-group">
+        <label for="edit-youtube-url">YouTubeURL（任意）</label>
+        <input type="url" id="edit-youtube-url" placeholder="https://www.youtube.com/watch?v=…">
       </div>
       <div class="form-group">
         <label for="edit-tags">タグ（任意、カンマ区切り）</label>
